@@ -3,38 +3,51 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>100 Soru Test</title>
+  <title>Uzmanlık Sınavı Simülasyonu</title>
   <style>
-    body{font-family:system-ui,Arial,sans-serif;max-width:900px;margin:24px auto;padding:0 16px}
+    :root{
+      --border:#ddd; --muted:#666; --ok:#16a34a; --info:#60a5fa; --bad:#b91c1c;
+      --chip:#f5f5f5; --bg:#fff; --tile:#eef2ff;
+    }
+    body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:960px;margin:24px auto;padding:0 16px;background:#fafafa;color:#111}
+    h1{margin:0 0 12px 0}
     .row{margin:10px 0}
-    .card{border:1px solid #ddd;border-radius:12px;padding:20px;margin:16px 0}
-    .opts label{display:block;margin:6px 0;padding:8px;border:1px solid #e5e5e5;border-radius:8px;cursor:pointer}
+    .card{border:1px solid var(--border);border-radius:12px;padding:20px;margin:16px 0;background:var(--bg)}
+    .opts label{display:block;margin:6px 0;padding:10px;border:1px solid #e5e5e5;border-radius:10px;cursor:pointer;background:#fff}
+    .opts input{margin-right:8px}
     .btns{display:flex;gap:8px;margin-top:12px}
     button{padding:10px 14px;border:1px solid #ccc;border-radius:10px;background:#f7f7f7;cursor:pointer}
+    button:hover{background:#eee}
     button[disabled]{opacity:.5;cursor:not-allowed}
     .progress{height:10px;background:#eee;border-radius:6px;overflow:hidden;margin:8px 0 16px}
     .bar{height:100%;width:0%}
     .right{background:#d9f7e0}
     .wrong{background:#ffe3e3}
-    .muted{color:#666}
+    .muted{color:var(--muted)}
     .kps{font-size:12px}
     .hidden{display:none}
-    .header{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-    .badge{border:1px solid #ddd;border-radius:999px;padding:6px 10px}
+    .header{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .header .spacer{flex:1}
+    .badge{border:1px solid var(--border);border-radius:999px;padding:6px 10px;background:#fff}
     .pass{color:#15803d}
-    .fail{color:#b91c1c}
-    /* Soru Haritası */
-    .map-toggle{margin-left:auto}
-    .map{display:none}
-    .map.show{display:block}
-    .ranges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
-    .range{padding:6px 10px;border:1px solid #ddd;border-radius:999px;cursor:pointer}
-    .range.active{background:#eef6ff;border-color:#93c5fd}
-    .qnums{display:flex;flex-wrap:wrap;gap:6px}
-    .qnum{width:32px;height:32px;border:1px solid #ddd;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px}
-    .qnum.answered{background:#d9f7e0;border-color:#8fd19a}
-    .qnum.blank{background:#eee}
-    .qnum.current{background:#bfdbfe;border-color:#60a5fa}
+    .fail{color:var(--bad)}
+    /* Soru haritası */
+    .mapBtn{margin-left:auto}
+    .mapWrap{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+    .map{max-width:760px;width:100%;background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px}
+    .map h3{margin:0 0 8px 0}
+    .grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
+    .qbtn{border:1px solid var(--border);background:#fff;border-radius:8px;padding:8px 0;text-align:center;cursor:pointer;font-size:13px}
+    .qbtn.ans{background:#eafff1;border-color:#b7f3c8}
+    .qbtn.cur{background:#e0e7ff;border-color:#c7d2fe}
+    .qbtn.blank{background:#f8fafc}
+    .mapfooter{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+    .legend{display:flex;gap:10px;align-items:center}
+    .lg{display:flex;gap:6px;align-items:center}
+    .dot{width:12px;height:12px;border-radius:4px;border:1px solid var(--border);background:#f8fafc}
+    .dot.ans{background:#eafff1;border-color:#b7f3c8}
+    .dot.cur{background:#e0e7ff;border-color:#c7d2fe}
+    .close{border:none;background:#f1f5f9;padding:8px 10px;border-radius:8px;cursor:pointer}
   </style>
 </head>
 <body>
@@ -44,15 +57,11 @@
     <div class="badge">Süre: <strong id="timer">120:00</strong></div>
     <div class="badge">Yanıtlanan: <strong id="ansCount">0</strong>/<span id="totalQ">0</span></div>
     <div class="badge">Eşik: <strong id="passThreshold">70</strong> doğru</div>
-    <button id="toggleMap" class="badge map-toggle">Soru Haritası</button>
+    <div class="spacer"></div>
+    <button id="openMap" class="badge mapBtn">Soru Haritası</button>
   </div>
 
   <div class="progress"><div class="bar" id="bar"></div></div>
-
-  <div id="mapPanel" class="card map">
-    <div class="ranges" id="rangeBar"></div>
-    <div class="qnums" id="qnums"></div>
-  </div>
 
   <div id="screen" class="card"></div>
   <div class="btns">
@@ -63,16 +72,33 @@
 
   <div id="result" class="card hidden"></div>
 
-  <script>
-    // ====== SETTINGS ======
-    const DURATION_MIN = 120;
-    const PASS_THRESHOLD = 70;
-    const RANGE_SIZE = 10;
+  <!-- Soru Haritası Modal -->
+  <div id="mapWrap" class="mapWrap" aria-hidden="true">
+    <div class="map">
+      <h3>Soru Haritası</h3>
+      <div id="mapGrid" class="grid"></div>
+      <div class="mapfooter">
+        <div class="legend">
+          <div class="lg"><span class="dot"></span> Boş</div>
+          <div class="lg"><span class="dot ans"></span> İşaretli</div>
+          <div class="lg"><span class="dot cur"></span> Şu anki</div>
+        </div>
+        <button id="closeMap" class="close">Kapat</button>
+      </div>
+    </div>
+  </div>
 
-    // ====== QUESTIONS ======
-    // BURAYA DİZİNİ KOY
-        const QUESTIONS = [
-  {
+<script>
+/* ================= SETTINGS ================= */
+const DURATION_MIN = 120;     // dakika
+const PASS_THRESHOLD = 70;    // geçiş eşiği
+
+/* ================= QUESTIONS =================
+  sorularınızı dilerseniz bu dizinin başına ekleyebilirsiniz.
+   Şema: { id, text, options[5], answer(0-4), prompt? }
+*/
+const QUESTIONS = [
+{
     id: 1,
     difficulty: "Kolay",
     text: "Aşağıdakilerden hangisi dijital dönüşüm sürecinin bir çıktısı olarak değerlendirilebilir?",
@@ -989,184 +1015,1000 @@
       "Sadece risk analizini yapmak"
     ],
     answer: 1
+  },
+{
+  id: 83,
+  text: "İstanbul Sanayi Odası tarafından açıklanan PMI Endeksi ile ilgili aşağıdaki ifadelerden hangisi doğrudur?",
+  options: [
+    "50’nin üzerinde olması sektörde daralma olduğunu gösterir.",
+    "50’nin altında olması sektörde iyileşme olduğunu gösterir.",
+    "Endeks yalnızca istihdam göstergesinden hesaplanır.",
+    "50’nin üzerinde ölçülen değerler sektörde genel anlamda iyileşmeye işaret eder.",
+    "PMI, sadece dış ticaret dengesine dayalı hesaplanan bir endekstir."
+  ],
+  answer: 3
+},
+{
+  id: 84,
+  text: "Politika faizi aşağıdakilerden hangisini ifade eder?",
+  options: [
+    "Bankaların TCMB’den 1 ay vadeli borç alma faiz oranı",
+    "Bankaların TCMB’den 1 hafta vadeli borç alma faiz oranı",
+    "Bankaların birbirinden gecelik borç alma faiz oranı",
+    "Mevduat sahiplerinin bankalardan elde ettiği faiz oranı",
+    "Devletin borçlanma senetlerinin faiz oranı"
+  ],
+  answer: 1
+},
+{
+  id: 85,
+  text: "Reel Efektif Döviz Kuru (REDK) hakkında aşağıdakilerden hangisi yanlıştır?",
+  options: [
+    "Nominal efektif döviz kurundaki nispi fiyat etkileri arındırılarak hesaplanır.",
+    "Endeksin 100’den büyük olması TL’nin değer kazandığını gösterir.",
+    "Endeksin 100’den küçük olması TL’nin ticaret ortaklarına göre değer kaybettiğini gösterir.",
+    "Ağırlıklar ikili ticaret akımlarına göre belirlenir.",
+    "REDK yalnızca faiz farklarına göre hesaplanır."
+  ],
+  answer: 4
+},
+{
+  id: 86,
+  text: "Rezerv yeterliliği göstergesi ile ilgili aşağıdaki ifadelerden hangisi doğrudur?",
+  options: [
+    "Brüt rezervlerin gelecek 12 ayda vadesi dolacak dış borca oranı %50’nin altına düşerse rezerv yeterli kabul edilir.",
+    "Brüt rezervlerin dış borca oranı %80 civarında ise rezervlerin yeterli olduğundan söz edilebilir.",
+    "Rezerv yeterliliği yalnızca cari işlemler açığına göre hesaplanır.",
+    "Rezerv yeterliliği göstergesi TL’nin değer kazanıp kaybettiğini gösterir.",
+    "Yalnızca özel sektör dış borçlarına bakılarak hesaplanır."
+  ],
+  answer: 1
+},
+{
+  id: 87,
+  text: "SAMEKS Hizmet ve Sanayi Endeksleri ile ilgili aşağıdaki ifadelerden hangisi doğrudur?",
+  options: [
+    "MÜSİAD tarafından oluşturulmuştur.",
+    "Eşik değer 100’dür, bunun üzeri büyüme altı daralma demektir.",
+    "50’nin üzerinde olması ekonomide küçülmeye işaret eder.",
+    "50 olması ekonomide hızlı büyümeyi gösterir.",
+    "Sadece sanayi sektörünü kapsar, hizmet sektörünü içermez."
+  ],
+  answer: 0
+},
+{
+  id: 88,
+  text: "VIX Endeksi (Korku Endeksi) ile ilgili aşağıdaki ifadelerden hangisi doğrudur?",
+  options: [
+    "Endeks düştükçe piyasadaki riskin arttığını gösterir.",
+    "Endeks yalnızca ABD faiz oranlarını ölçer.",
+    "Endeksin yükselişi piyasadaki riskin arttığını gösterir.",
+    "Endeks Türkiye’ye özgü bir piyasa göstergesidir.",
+    "Endeks yalnızca gelişmekte olan ülkelerde kullanılır."
+  ],
+  answer: 2
+},
+{
+  id: 89,
+  text: "Aşağıdaki kavramları tanımlarıyla eşleştiriniz:",
+  prompt: "I. Volatilite\nII. PMI\nIII. Politika Faizi\n1. Finansal bir ürünün belirli zaman diliminde fiyatındaki oynaklığı ifade eder.\n2. İmalat sanayinde performansı ölçmek için kullanılan bileşik endeks.\n3. Bankaların TCMB’den 1 hafta vadeli borç alma faiz oranı.",
+  options: [
+    "I–1, II–2, III–3",
+    "I–2, II–1, III–3",
+    "I–3, II–1, III–2",
+    "I–1, II–3, III–2",
+    "I–2, II–3, III–1"
+  ],
+  answer: 0
+},
+{
+  id: 90,
+  text: "PMI (Satın Alma Yöneticileri Endeksi) ile ilgili aşağıdaki ifadelerden hangisi doğrudur?",
+  options: [
+    "50’nin üzerinde olması ekonomik aktivitede azalmaya işaret eder, 50’nin altında olması ise artışı gösterir.",
+    "50 seviyesinin altına düşmesi üretim ve satışlarda artışa işaret eder.",
+    "50’nin üzerinde olması bir önceki aya göre üretim, satış ve ekonomik aktivitede artış anlamına gelir.",
+    "50 seviyesinin altında olması ekonomik aktivitede artış, 50’nin üzerinde olması ise durgunluk anlamına gelir.",
+    "PMI yalnızca enflasyon eğilimini ölçmek için kullanılır, üretim veya satışlarla ilişkili değildir."
+  ],
+  answer: 2
+},
+{
+  id: 91,
+  text: "Türkiye’de enflasyonun kur hareketlerine duyarlılığının en temel nedeni aşağıdakilerden hangisidir?",
+  options: [
+    "Yerli üretimin büyük ölçüde ithal ara mallara bağımlı olması",
+    "Türkiye’nin döviz rezervlerinin düşük olması",
+    "Hanehalkı tasarruf eğiliminin yüksek olması",
+    "Reel sektörün dış borçlanmasının düşük olması",
+    "Cari işlemler fazlasının sürekli hale gelmesi"
+  ],
+  answer: 0
+},
+{
+  id: 92,
+  text: "Yakın dönemde TÜFE artışlarına en çok katkı veren sektör ve en yüksek enflasyonun görüldüğü alan aşağıdakilerden hangisidir?",
+  options: [
+    "Tarım sektörü – gıda fiyatları",
+    "Sanayi sektörü – enerji fiyatları",
+    "Hizmet sektörü – kira artışları",
+    "Finans sektörü – kredi faizleri",
+    "Kamu sektörü – vergi oranları"
+  ],
+  answer: 2
+},
+{
+  id: 93,
+  text: "Net hata noksan kaleminin pozitif olması ne anlama gelir?",
+  options: [
+    "Ekonomiden sermaye çıkışı vardır, kaynağı belli değildir.",
+    "Ekonomiye sistem dışından para girişi vardır, kaynağı tam olarak belirlenememektedir.",
+    "Cari açığın resmi finansman kalemleriyle karşılandığını gösterir.",
+    "Sadece Merkez Bankası rezervlerindeki artışa işaret eder.",
+    "Net ihracat fazlasını gösterir."
+  ],
+  answer: 1
+},
+{
+  id: 94,
+  text: "Türkiye’de dolarizasyonun yüksek olmasının temel nedenleri aşağıdakilerden hangileridir?",
+  prompt: "I. Enflasyonun yüksek olması\nII. TL’nin değer kaybı beklentisi\nIII. Likidite sıkışıklığı",
+  options: [
+    "Yalnız I",
+    "Yalnız II",
+    "Yalnız III",
+    "I ve II",
+    "I, II ve III"
+  ],
+  answer: 4
+},
+{
+  id: 95,
+  text: "Türkiye’de son dönemde doğrudan yabancı yatırımların en önemli kaynağı aşağıdakilerden hangisidir?",
+  options: [
+    "Yabancıların devlet tahvili alımları",
+    "Yabancıların Türkiye’de gayrimenkul alımları",
+    "Türkiye’nin artan ihracat gelirleri",
+    "Bankaların dış borçlanmaları",
+    "Uluslararası kuruluşlardan sağlanan fonlar"
+  ],
+  answer: 1
+},
+{
+  id: 96,
+  text: "Türkiye’de bankaların sermaye yeterliliği ile ilgili aşağıdaki ifadelerden hangisi doğrudur?",
+  options: [
+    "Türkiye’de bankaların sermaye yeterliliği oranı %5 seviyesindedir, uluslararası standartların altındadır.",
+    "Basel standartlarına göre sermaye yeterliliği en az %12 olmalıdır, Türkiye’de bu oran %8’dir.",
+    "Türkiye’de BDDK’ya göre asgari sermaye yeterliliği oranı %12’dir, mevcut oran %18–19 civarındadır.",
+    "Sermaye yeterliliği oranı yalnızca Merkez Bankası tarafından belirlenir.",
+    "Türkiye’de sermaye yeterliliği oranı gelişmiş ülkeler ortalamasının çok altındadır."
+  ],
+  answer: 2
+},
+{
+  id: 97,
+  text: "Türkiye’de para politikası faiz oranı olarak kullanılan temel gösterge aşağıdakilerden hangisidir?",
+  options: [
+    "Gecelik borç verme faizi",
+    "Haftalık repo faizi",
+    "Zorunlu karşılık oranı",
+    "Mevduat faizi",
+    "Politika dışı faiz oranı"
+  ],
+  answer: 1
+},
+{
+  id: 98,
+  text: "Ekonomide maliyet enflasyonu hangi göstergeyle ölçülmektedir?",
+  options: [
+    "TÜFE",
+    "ÜFE",
+    "CDS",
+    "PMI",
+    "VIX"
+  ],
+  answer: 1
+},
+{
+  id: 99,
+  text: "Bir ülkenin risk primi uluslararası piyasalarda hangi gösterge ile ölçülür?",
+  options: [
+    "PMI",
+    "VIX",
+    "CDS",
+    "Repo faizi",
+    "ÜFE"
+  ],
+  answer: 2
+},
+{
+  id: 100,
+  text: "VIX endeksinin hızla yükselmesi aşağıdakilerden hangisine işaret eder?",
+  options: [
+    "Risk iştahının arttığını, yatırımcıların riskli varlıklara yöneldiğini gösterir.",
+    "Küresel piyasalarda belirsizliğin azaldığını gösterir.",
+    "Risk iştahının azaldığını, riskli varlıklardan çıkış yaşandığını gösterir.",
+    "Yalnızca ABD hisse senedi piyasasında değer artışına işaret eder.",
+    "Para politikası faizlerinin düşeceğini gösterir."
+  ],
+  answer: 2
+},
+{
+  id: 101,
+  text: "ABD Hazinesi’nin 10 yıllık borçlanma faizi %4, aynı vadede Türkiye Cumhuriyet Merkez Bankası’nın borçlanma faizi %7,5’tir. Buna göre Türkiye’nin risk primi yaklaşık kaç baz puandır?",
+  options: ["150","200","250","300","350"],
+  answer: 4
+},
+{
+  id: 102,
+  text: "Federal Reserve Bankası’nın piyasadan ABD tahvili alması durumunda aşağıdaki yargılardan hangisi doğrudur?",
+  options: [
+    "Piyasadan para çekiyordur, dolar arzı azalır.",
+    "Piyasaya para sürüyordur, dolar arzı artar.",
+    "Piyasadaki para miktarını değiştirmez, yalnızca faiz oranlarını yükseltir.",
+    "Piyasaya para sürüyordur, fakat dolar arzı azalır.",
+    "Piyasadan para çekiyordur, dolar arzı artar."
+  ],
+  answer: 1
+},
+{
+  id: 103,
+  text: "Aşağıdakilerden hangisi ABD’de yaşanan ve dünya piyasalarına olumsuz yansıyan mortgage krizinin nedenlerinden biri değildir?",
+  options: [
+    "Varlığa dayalı menkul kıymetlerde hatalı fiyatlama",
+    "Fitch ve Moody’s gibi derecelendirme kuruluşlarının hatalı notlamaları",
+    "2008 yılında Fed’in faiz artışı",
+    "Fed faiz artışı sonrası borçluların ödeme zorlukları yaşaması",
+    "Konut kredilerinde teminat oranlarının olağanüstü şekilde artırılması"
+  ],
+  answer: 4
+},
+{
+  id: 104,
+  text: "TCMB’nin faiz indirimi sürecinde olduğu bir dönemde TL cinsi tahvillerin fiyatı hakkında aşağıdakilerden hangisi doğrudur?",
+  options: [
+    "Faiz indirimi tahvil fiyatlarını düşürür çünkü yatırımcılar alternatif yatırım araçlarına yönelir.",
+    "Faiz ve tahvil fiyatı arasında pozitif ilişki vardır, faiz düşerse tahvil fiyatı da düşer.",
+    "Tahvil faizi ile fiyatı ters yönlüdür, faiz düştüğünde TL tahvillerin fiyatı artar.",
+    "Tahvil fiyatları faiz oranlarından bağımsızdır, yalnızca arz-talep dengesine göre belirlenir.",
+    "TCMB faiz indirse bile tahvil fiyatları değişmez, çünkü fiyat sabittir."
+  ],
+  answer: 2
+},
+{
+  id: 105,
+  text: "Uluslararası petrol fiyatlarındaki artış Türkiye’nin ödemeler dengesi tablosunu nasıl etkiler?",
+  options: [
+    "Cari açığı azaltır, çünkü ihracat gelirlerini artırır.",
+    "Cari açığı artırır, çünkü ithalat faturasını yükseltir.",
+    "Cari işlemler dengesini etkilemez, yalnızca finans hesabını etkiler.",
+    "Cari fazla yaratır, çünkü enerji dışı kalemler dengelenir.",
+    "Sadece rezervleri etkiler, cari işlemler dengesini etkilemez."
+  ],
+  answer: 1
+},
+{
+  id: 106,
+  text: "Cari açık 15 milyar dolar, finans hesabı 10 milyar dolar fazla, rezervler 10 milyar dolar azalmışsa net hata noksan kaçtır?",
+  options: [
+    "+5 milyar dolar (sisteme giriş var)",
+    "–5 milyar dolar (sistemden çıkış var)",
+    "0 (tam denge var)",
+    "–10 milyar dolar",
+    "+15 milyar dolar"
+  ],
+  answer: 1
+},
+{
+  id: 107,
+  text: "Aşağıdakilerden hangileri döviz kurunu kısa vadede etkileyen faktörler arasında yer alır?",
+  prompt: "I. Diğer ülkeler ile enflasyon farkları\nII. Cari işlemler açığı\nIII. Emtia fiyatları\nIV. Göreli verimlilik farklılıkları",
+  options: [
+    "I ve II",
+    "I, II ve III",
+    "II ve IV",
+    "Yalnız III",
+    "I ve IV"
+  ],
+  answer: 1
+},
+{
+  id: 108,
+  text: "Döviz kurunun uzun vadeli belirleyicisi aşağıdakilerden hangisidir?",
+  options: [
+    "Dış borç geri ödemeleri",
+    "Risk primi",
+    "Cari işlemler açığı",
+    "Göreli verimlilik farklılıkları",
+    "Faiz farklılıkları"
+  ],
+  answer: 3
+},
+{
+  id: 109,
+  text: "Aşağıdaki kavramlarla tanımlarını eşleştiriniz:",
+  prompt: "I. Baz Puan\nII. CDS\nIII. Bütçe Dengesi\nIV. Dış Ticaret Dengesi\nV. Dolarizasyon\n1. Bir ülkenin bütçe gelirleri ile giderleri arasındaki fark\n2. Faiz oranındaki değişimin yüzde üzerinden ifadesi (1 bp = %0,01)\n3. İhracat ile ithalat arasındaki fark\n4. Ulusal para yerine yabancı paranın hesap birimi olarak kullanılması\n5. Kredi risk primini gösteren finansal ölçüt",
+  options: [
+    "I–2, II–5, III–1, IV–3, V–4",
+    "I–1, II–2, III–4, IV–5, V–3",
+    "I–5, II–1, III–2, IV–3, V–4",
+    "I–2, II–3, III–1, IV–5, V–4",
+    "I–4, II–5, III–3, IV–2, V–1"
+  ],
+  answer: 0
+},
+{
+  id: 110,
+  text: "Çıktı açığı ile ilgili aşağıdaki ifadelerden hangisi doğrudur?",
+  options: [
+    "Çıktı açığı doğrudan para politikası aracı olarak kullanılır.",
+    "Pozitif çıktıda ekonomide atıl kapasite vardır ve enflasyon düşüşe eğilimlidir.",
+    "Negatif çıktıda ekonomide talep fazlası vardır ve enflasyon baskısı yükselir.",
+    "Pozitif çıktıda ekonomi kapasitesinin üzerinde çalışır, talep baskısı enflasyonu yükseltir.",
+    "Çıktı açığı yalnızca geçmiş enflasyonu açıklamak için kullanılır, beklentilerle ilgisi yoktur."
+  ],
+  answer: 3
+},
+{
+  id: 111,
+  text: "Dış ticaret haddinin 100’ün üzerinde bulunması aşağıdakilerden hangisini gösterir?",
+  options: [
+    "İthalat fiyatlarının ihracat fiyatlarına göre daha yüksek olduğunu",
+    "Bir birim ihracatla daha az ithal malı alınabildiğini",
+    "İhracat fiyatlarının ithalat fiyatlarına göre daha yüksek olduğunu",
+    "İhracatın ithalatı karşılamadığını",
+    "Cari açığın azaldığını"
+  ],
+  answer: 2
+},
+{
+  id: 112,
+  text: "Enflasyonun nedenleri ile ilgili aşağıdaki eşleştirme doğru mudur?",
+  prompt: "I. Talep enflasyonu → Toplam talebin arzı aşması\nII. Maliyet enflasyonu → Üretim maliyetlerinin artması\nIII. Para arzı → Likiditenin artmasıyla fiyatların yükselmesi\nIV. Beklentiler → Ücret talepleri ve fiyat artışı beklentisi",
+  options: [
+    "Yalnız I ve II doğru",
+    "Yalnız III doğru",
+    "I, II ve IV doğru",
+    "I, II, III ve IV doğru",
+    "I ve III doğru"
+  ],
+  answer: 3
+},
+{
+  id: 113,
+  text: "Aşağıdakilerden hangisi Gayrisafi Yurtiçi Hasıla’nın (GSYH) hesaplanma yöntemlerinden biri değildir?",
+  options: [
+    "Üretim yöntemi",
+    "Harcama yöntemi",
+    "Gelir yöntemi",
+    "Yatırım yöntemi",
+    "Net ihracat farkı yöntemi (harcama içinde alt bileşen)"
+  ],
+  answer: 3
+},
+{
+  id: 114,
+  text: "Aşağıdaki ekonomik göstergelerden hangisi doğrudan maliyet enflasyonunu ölçmek için kullanılır?",
+  options: [
+    "TÜFE",
+    "ÜFE",
+    "VIX",
+    "CDS",
+    "Cari işlemler dengesi"
+  ],
+  answer: 1
+},
+{
+  id: 115,
+  text: "Ödemeler dengesinde teorik olarak aşağıdaki eşitliklerden hangisi geçerlidir?",
+  options: [
+    "Cari işlemler + Sermaye Hesabı = Finans Hesabı",
+    "Cari işlemler + Net Hata Noksan = Sermaye Hesabı",
+    "Finans Hesabı + Net Hata Noksan = Cari Açık",
+    "Sermaye Hesabı + Rezervler = Cari İşlemler",
+    "Cari İşlemler = Net Hata Noksan"
+  ],
+  answer: 0
+},
+{
+  id: 116,
+  text: "Cari İşlemler Hesabı: -15190, Sermaye Hesabı: -22, Finans Hesabı: -13385, Net Hata Noksan: -5690 ise Rezerv Varlıklar kaçtır?",
+  options: ["-15212","-20880","-5712","-7517","-13397"],
+  answer: 3
+},
+{
+  id: 117,
+  text: "Cari İşlemler Hesabı: -3856, Sermaye Hesabı: 48, Finans Hesabı: -11854, Rezerv Varlıklar: -6430 ise Net Hata Noksan kaçtır?",
+  options: ["-3808","-10286","-10334","-1616","-7998"],
+  answer: 3
+},
+{
+  id: 118,
+  text: "Ödemeler dengesinde ihracat 104916, ithalat ise 130892 olup, mal dengesi kaçtır?",
+  options: ["52458","-25976","25976","65446","-7998"],
+  answer: 1
+},
+{
+  id: 119,
+  text: "Enflasyon ile ilgili yukarıda verilen yargılardan hangisi yanlıştır?",
+  prompt: "• Düşük ve durağan enflasyon iyidir (%1–%4)\n• Göreceli fiyatlarda uyum sağlar\n• Üretim faktörlerinin maliyetlerini düşürerek üretimi destekleyebilir\n• Talep yaratır\n• Düşük enflasyon VIX endeksini artırır",
+  options: [
+    "Düşük ve durağan enflasyon iyidir (%1–%4)",
+    "Göreceli fiyatlarda uyum sağlar",
+    "Üretim faktörlerinin maliyetlerini düşürerek üretimi destekleyebilir",
+    "Talep yaratır",
+    "Düşük enflasyon VIX endeksini artırır"
+  ],
+  answer: 4
+},
+{
+  id: 120,
+  text: "Enflasyon ile ilgili yukarıda verilen yargılardan hangisi yanlıştır?",
+  prompt: "• Yüksek enflasyon kötüdür (%10 üzeri)\n• Fiyatlama mekanizmasında aksaklıklar görülür\n• Dolarizasyon artar\n• Yatırımlar azalır, uzun vadeli büyüme potansiyeli düşer\n• Hiper enflasyon çirkindir (%100 üzeri)\n• Enflasyon yüksek olunca borsa yatırımları artar",
+  options: [
+    "Yüksek enflasyon kötüdür (%10 üzeri)",
+    "Fiyatlama mekanizmasında aksaklıklar görülür",
+    "Dolarizasyon artar",
+    "Yatırımlar azalır, uzun vadeli büyüme potansiyeli düşer",
+    "Enflasyon yüksek olunca borsa yatırımları artar"
+  ],
+  answer: 4
+},  
+/* 121 */
+  {
+    id:121,
+    text:"Bankaların iklim kaynaklı risklerini ölçmeye yönelik yöntem olan Isı Haritası ile ilgili aşağıdakilerden hangileri doğrudur?",
+    prompt:"I. Bankaların iklim kaynaklı risklerini ölçmeye yönelik bir yöntemdir.\nII. İklimle bağlantılı risklerin yönetilebilmesi için ilk adımdır.\nIII. Portföy bazlı, genel bir analiz sunar.\nIV. Analiz sonucunda portföyün hangi riskten daha çok etkilenebileceği belirlenir.\nV. Daha detaylı iklim risk analizleri için temel oluşturur.\nVI. Bireysel müşteri düzeyinde ayrıntılı risk analizi yapar.",
+    options:[
+      "I, II ve VI",
+      "I, II, III, IV ve V",
+      "II, IV ve VI",
+      "Yalnız III",
+      "I, III, V ve VI"
+    ],
+    answer:1
+  },
+{
+    id:122,
+    text:"Durgunluk, ekonomik faaliyetlerde genel bir düşüş olduğunda ortaya çıkan bir iş döngüsü daralmasıdır.\nDurgunluklar genellikle harcamalarda yaygın bir düşüş olduğunda ortaya çıkar Büyüme negatif olarak gerçekleşmiştir. Tanımı verilen kavramın adı nedir?",
+    
+    options:[
+      "Enflasyon",
+      "Resesyon",
+      "Deflasyon",
+      "Stagflasyon",
+      "Kotasyon"
+    ],
+    answer:1
+  },
+  /* 123 */
+  {
+    id:123,
+    text:"Hangileri iklimle bağlantılı riskler arasında yer alır?",
+    prompt:"I. Likidite Riski\nII. Kredi Riski\nIII. Geçiş Riskleri\nIV. Fiziksel Riskler",
+    options:[
+      "I ve II",
+      "I, II ve III",
+      "III ve IV",
+      "II ve IV",
+      "Yalnız III"
+    ],
+    answer:2
+  },
+  /* 124 */
+  {
+    id:124,
+    text:"Hangi finansal araç hem çevresel hem sosyal fayda amaçlar?",
+    options:["Sürdürülebilir tahvil","Sosyal Tahvil","Yeşil Tahvil","Devlet Tahvili","BIST 30 Sürdürülebilirlik Endeksi"],
+    answer:0
+  },
+  /* 125 */
+  {
+    id:125,
+    text:"Aşağıdakilerden hangileri sürdürülebilirlikle bağlantılı kredi ürünleri arasında sayılabilir?",
+    prompt:"I. Elektrikli araç kredileri\nII. Cinsiyet Eşitliği Kredileri\nIII. Bina Yalıtım Kredileri",
+    options:[
+      "Yalnız I",
+      "I ve II",
+      "II ve III",
+      "I ve III",
+      "I, II ve III"
+    ],
+    answer:4
+  },
+  /* 126 */
+  {
+    id:126,
+    text:"Sera gazlarının kontrolsüz bir şekilde artmasına neden olan insan kaynaklı aktivitelerden hangisi yer almaz?",
+    options:[
+      "Döngüsel ekonomiye katkı sağlamak",
+      "Fosil yakıt kullanımının artması",
+      "Azalan ormanlar",
+      "Tarım faaliyetleri",
+      "Sanayileşme"
+    ],
+    answer:0
+  },
+  /* 127 */
+  {
+    id:127,
+    text:"Aşağıdakilerden hangisi sürdürülebilirliğin sosyal boyutları içinde yer almaz?",
+    options:[
+      "Kadın girişimcilerin desteklenmesi",
+      "Eğitim ve sağlık yatırımlarının desteklenmesi",
+      "Çevre kirliliğine ilişkin önleme faaliyetleri",
+      "Erişilebilir şube ve ATM hizmetlerinin sunulması",
+      "Kültürel mirasın korunması"
+    ],
+    answer:2
+  },
+  /* 128 */
+  {
+    id:128,
+    text:"Aşağıdakilerden hangisi sera gazlarının kontrolsüz artışının nedenlerinden biri değildir?",
+    options:[
+      "Fosil yakıtların kullanımı",
+      "Tarımsal faaliyetler",
+      "Azalan ormanlar",
+      "Sanayileşme",
+      "Artan ormanlar"
+    ],
+    answer:4
+  },
+  /* 129 */
+  {
+    id:129,
+    text:"Sürdürülebilirlik bağlamında aşağıdakilerden hangileri geçiş riskleri arasında yer alır?",
+    prompt:"I. Politik Riskler\nII. Yasal Riskler\nIII. Teknolojik Riskler\nIV. Piyasa Riskleri\nV. İtibar Riskleri\nVI. Doğal Afet Riskleri",
+    options:[
+      "Yalnız I",
+      "I, II ve III",
+      "I, II, III, IV ve V",
+      "II, IV ve VI",
+      "I, II, III, IV, V ve VI"
+    ],
+    answer:2
+  },
+  /* 130 */
+  {
+    id:130,
+    text:"Bankamızda sürdürülebilirlikle ilgili hangi ürün Bireysel Ürünler kategorisindedir?",
+    options:[
+      "Yeşil Ev Konut Kredisi",
+      "Kadın Girişimci Destek Kredisi",
+      "Sürdürülebilirlik Sertifikasyonuna Destek Kredisi",
+      "Sürdürülebilirlik 30 Hisse Senedi Fonu",
+      "İhracat Destek Kredisi"
+    ],
+    answer:0
+  },
+  /* 131 */
+  {
+    id:131,
+    text:"Bankamızda sürdürülebilirlikle ilgili hangi ürün Ticari Ürünler kategorisine aittir?",
+    options:[
+      "Yeşil İş Yatırım Kredisi",
+      "Eğitim Kredisi",
+      "Çevreci Taşıt Kredisi",
+      "Üreten Kadınlar Değişken Fon",
+      "Öğrenci Harçlık Kartı"
+    ],
+    answer:2
+  },
+  /* 132 */
+  {
+    id:132,
+    text:"Bankamızda sürdürülebilirlikle ilgili hangi ürün Yatırım Fonları kategorisindedir?",
+    options:[
+      "Üreten Kadınlar Değişken Fon",
+      "Yeşil Işık Ticari Taşıt Kredisi",
+      "Konutlarda Isı Yalıtım Kredisi",
+      "TOGG Taşıt Kredisi",
+      "Kültür ve Sanat Destek Kredisi"
+    ],
+    answer:0
+  },
+  /* 133 */
+  {
+    id:133,
+    text:"SPK Rehberi’ne göre yeşil/sürdürülebilir tahvil ihracında uyulması gereken esaslardan hangileri doğrudur?",
+    prompt:"I. İhraççı, çerçeve belgesinde Rehber esaslarına uyulduğunu teyit etmelidir.\nII. Fon, yalnızca ihracat finansmanı ve kısa vadeli borç kapatmada kullanılabilir.\nIII. Fon, çerçeve belgesinde belirtilen şekilde yeşil projelerin finansmanında kullanılmalıdır.\nIV. Yeşil borçlanma aracının Rehber ile uyumlu olduğu dış değerlendirme kuruluşu tarafından onaylanmalıdır.",
+    options:[
+      "I ve III",
+      "I, III ve IV",
+      "II ve IV",
+      "Yalnız II",
+      "I, II, III ve IV"
+    ],
+    answer:1
+  },
+  /* 134 */
+  {
+    id:134,
+    text:"SPK Rehberi’ne göre yeşil/sürdürülebilir tahvil ihracı çerçeve dokümanının temel bileşenleri hangileridir?",
+    prompt:"I. İhraçtan Elde Edilen Fonların Kullanımı\nII. Proje Değerlendirme ve Seçme Süreci\nIII. İhraçtan Elde Edilen Fonların Yönetimi\nIV. Raporlama\nV. Tahvilin teminat yapısı",
+    options:[
+      "I, II ve V",
+      "I, II, III ve IV",
+      "I ve III",
+      "II, III ve IV",
+      "Yalnız IV"
+    ],
+    answer:1
+  },
+  /* 135 */
+  {
+    id:135,
+    text:"Sosyal tahvillerin amacı aşağıdakilerden hangisidir?",
+    options:[
+      "Spor projelerini finanse etmek",
+      "Teknoloji yatırımlarını fonlamak",
+      "Eğitim–sağlık gibi sosyal fayda sağlayan projeleri desteklemek",
+      "Yenilenebilir enerji projelerini finanse etmek",
+      "Doğa temelli çözümleri desteklemek"
+    ],
+    answer:2
+  },
+  /* 136 */
+  {
+    id:136,
+    text:"Aşağıdaki sürdürülebilir finans araçlarından hangisi Bireysel Krediler grubuna aittir?",
+    options:[
+      "Yeşil İnşaat Projeleri",
+      "Çatı GES",
+      "Sosyal Tahvil",
+      "Yeşil Enerji Fonları",
+      "Cinsiyet Eşitliği"
+    ],
+    answer:1
+  },
+  /* 137 */
+  {
+    id:137,
+    text:"Aşağıdaki sürdürülebilir finans araçlarından hangisi Kurumsal/Tüzel Krediler grubuna aittir?",
+    options:[
+      "Elektrikli Araç Kredisi",
+      "Dezavantajlı Gruplara Yönelik Krediler",
+      "Sosyal Tahvil",
+      "Bina Yalıtım Kredisi",
+      "Yeşil Enerji Fonları"
+    ],
+    answer:1
+  },
+  /* 138 */
+  {
+    id:138,
+    text:"Aşağıdaki sürdürülebilir finans araçlarından hangisi Borçlanma Araçları grubuna aittir?",
+    options:[
+      "Sürdürülebilirlik Fonları",
+      "Çatı GES Kredisi",
+      "Yeşil Tahvil",
+      "Eğitim Kredileri",
+      "Cinsiyet Eşitliği Kredileri"
+    ],
+    answer:2
+  },
+  /* 139 */
+  {
+    id:139,
+    text:"Aşağıdakilerden hangisi sürdürülebilir finansın doğrudan hedeflerinden biri değildir?",
+    options:[
+      "İklim değişikliğinin olumsuz etkilerini azaltmak",
+      "Sosyal kapsayıcılığı artırmak",
+      "Yatırımların ÇSY yönetişimine göre değerlendirilmesi",
+      "Çevresel bozulmaları finanse eden sektörleri finanse etmek",
+      "Doğa temelli çözümleri desteklemek"
+    ],
+    answer:3
+  },
+  /* 140 */
+  {
+    id:140,
+    text:"Sürdürülebilir finansmanla ilişkili olmayan terim hangisidir?",
+    options:[
+      "Sürdürülebilir Tahvil",
+      "Sosyal Etki Yatırımı",
+      "Cinsiyet Eşitliği Kredisi",
+      "Faiz Swabı",
+      "Yeşil Tahvil"
+    ],
+    answer:3
+  },
+  /* 141 */
+  {
+    id:141,
+    text:"Sürdürülebilir finans boyutları–örnek eşleşmesi hangisidir?",
+    prompt:"I. Çevresel\nII. Sosyal\nIII. Yönetişimsel\n\n1) Cinsiyet eşitliği, sosyal yatırımlar, insan hakları\n2) İklim değişikliği ile mücadele, kirliliğin önlenmesi, döngüsel ekonomi\n3) Yönetim yapıları ve çalışan ilişkileri",
+    options:[
+      "I-1, II-2, III-3",
+      "I-2, II-1, III-3",
+      "I-3, II-2, III-1",
+      "I-1, II-3, III-2",
+      "I-2, II-3, III-1"
+    ],
+    answer:1
+  },
+  /* 142 */
+  {
+    id:142,
+    text:"Bir emisyon vakasında 2 birim CO₂ ve 1 birim Metan salımı var. GWP’ye göre Karbondioksit eşdeğeri kaçtır?",
+    options:["33","49","10264","30","64"],
+    answer:3
+  },
+  /* 143 */
+  {
+    id:143,
+    text:"AB Taksonomisi kapsamındaki 3 ana hedeften hangileri doğrudur?",
+    prompt:"I. Önemli ölçüde katkıda bulunmak\nII. Önemli bir zarar vermemek\nIII. Asgari sosyal standartları sağlamak\nIV. Finansal getiri maksimizasyonu",
+    options:[
+      "I, II ve III",
+      "I ve IV",
+      "II ve IV",
+      "Yalnız IV",
+      "I, II, III ve IV"
+    ],
+    answer:0
+  },
+  /* 144 */
+  {
+    id:144,
+    text:"Aşağıdakilerden hangisi AB Taksonomisi’nin 6 çevresel hedefinden biri değildir?",
+    options:[
+      "İklim Değişikliğinin Etkilerinin Azaltılması",
+      "Su ve Deniz Kaynaklarının Korunması",
+      "Döngüsel Ekonomiye Geçiş",
+      "Kirlilik Önleme ve Kontrolü",
+      "Finansal istikrarın korunması"
+    ],
+    answer:4
+  },
+  /* 145 */
+  {
+    id:145,
+    text:"“Kurumların finansal performansıyla; çevresel, sosyal ve ekonomik performansları arasındaki bağlantıyı tanımlayan ve yıllık hazırlanan rapor” aşağıdakilerden hangisidir?",
+    options:[
+      "Sürdürülebilirlik Raporu",
+      "Entegre Yönetim Raporu",
+      "Sıfır Atık Raporu",
+      "Net Sıfır Emisyon Raporu",
+      "Entegre Faaliyet Raporu"
+    ],
+    answer:4
+  },
+  /* 146 */
+  {
+    id:146,
+    text:"Bankamızın BIST Sürdürülebilirlik Endeksi kaçtır?",
+    options:["71","98","83","88","67"],
+    answer:2
+  },
+  /* 147 */
+  {
+    id:147,
+    text:"Net Sıfır Bankacılık Birliği taahhüdü kapsamındaki hedefimizin konusu nedir?",
+    options:[
+      "Kredi portföyü kaynaklı karbon ayak izini azaltmaya yönelik stratejiler geliştirmek",
+      "GWP hesaplamaları için altyapının oluşturulması",
+      "Sürdürülebilir bankacılık ürünleri üretmek",
+      "Piyasada itibar gören endekslere katılmak",
+      "Regülasyonlara uyum ve framework’ün tesisi"
+    ],
+    answer:0
+  },
+  /* 148 */
+  {
+    id:148,
+    text:"Sürdürülebilirlik Daire Başkanlığı’nın görevleri hangileridir?",
+    prompt:"I. Entegre Faaliyet Raporunun hazırlanması\nII. Ulusal/uluslararası endekslere katılım ve gerekliliklerin karşılanması\nIII. Entegre Yönetim Sistemi ve Sıfır Atık uygulamalarının yürütülmesi\nIV. Sürdürülebilirlikle bağlantılı projelerin geliştirilmesi (EDYS, su sebil dönüşümü, kompost vb.)\nV. Banka enerji ve doğal kaynak tüketimlerinin takibi\nVI. Karbon ve su ayak izinin hesaplanması ve raporlanması\nVII. Sürdürülebilirlik bilincinin Banka genelinde sağlanması\nVIII. Kredi faiz oranlarının dönemsel belirlenmesi",
+    options:[
+      "I, II, III, IV, V, VI",
+      "I, II, III, IV, V, VI, VII",
+      "II, III, IV, V, VI, VII, VIII",
+      "I, III, V, VII, VIII",
+      "Yalnız VIII"
+    ],
+    answer:1
+  },
+  /* 149 */
+  {
+    id:149,
+    text:"Sürdürülebilirliğin önem kazanmasının nedenleri hangileridir?",
+    prompt:"I. Nüfus artışı\nII. Uluslararası anlaşmalar ve yasal düzenlemeler\nIII. Yatırımcıların beklentileri\nIV. Paydaşların beklentileri\nV. Kısa vadeli kur dalgalanmaları",
+    options:[
+      "I, II, III",
+      "I, II, IV",
+      "II, III, IV",
+      "I, II, III, IV",
+      "Yalnız V"
+    ],
+    answer:3
+  },
+  /* 150 */
+  {
+    id:150,
+    text:"Aşağıdaki öncüllerden hangileri Sürdürülebilir finansın boyutlarını ifade eder?",
+    prompt:"I. Çevresel (iklim değişikliği ile mücadele, kirliliğin önlenmesi, döngüsel ekonomi)\nII. Sosyal (cinsiyet eşitliği, sosyal yatırımlar, insan hakları)\nIII. Yönetişimsel (yönetim yapıları ve çalışan ilişkileri)\nIV. Teknolojik (ürün AR-GE zamanlaması)",
+    options:[
+      "I ve II",
+      "I, II ve III",
+      "I ve III",
+      "II, III ve IV",
+      "I, II, III ve IV"
+    ],
+    answer:1
   }
-
-
 ];
 
-    // ====== STATE ======
-    let idx = 0;
-    const answers = new Array(QUESTIONS.length).fill(null);
-    let submitted = false;
+/* ================= STATE & ELEMENTS ================= */
+let idx = 0;
+const answers = new Array(QUESTIONS.length).fill(null);
+let submitted = false;
 
-    // ====== ELEMENTS ======
-    const screen = document.getElementById('screen');
-    const result = document.getElementById('result');
-    const btnPrev = document.getElementById('prev');
-    const btnNext = document.getElementById('next');
-    const btnSubmit = document.getElementById('submit');
-    const bar = document.getElementById('bar');
-    const timerEl = document.getElementById('timer');
-    const ansCountEl = document.getElementById('ansCount');
-    const totalQEl = document.getElementById('totalQ');
-    const passThEl = document.getElementById('passThreshold');
-    const mapPanel = document.getElementById('mapPanel');
-    const rangeBar  = document.getElementById('rangeBar');
-    const qnumsEl   = document.getElementById('qnums');
-    const btnToggleMap = document.getElementById('toggleMap');
+const screen = document.getElementById('screen');
+const result = document.getElementById('result');
+const btnPrev = document.getElementById('prev');
+const btnNext = document.getElementById('next');
+const btnSubmit = document.getElementById('submit');
+const bar = document.getElementById('bar');
+const timerEl = document.getElementById('timer');
+const ansCountEl = document.getElementById('ansCount');
+const totalQEl = document.getElementById('totalQ');
+const passThEl = document.getElementById('passThreshold');
 
-    totalQEl.textContent = QUESTIONS.length;
-    passThEl.textContent = PASS_THRESHOLD;
+const mapWrap = document.getElementById('mapWrap');
+const mapGrid = document.getElementById('mapGrid');
+document.getElementById('openMap').onclick = ()=>{ buildMap(); mapWrap.style.display='flex'; };
+document.getElementById('closeMap').onclick = ()=> mapWrap.style.display='none';
+mapWrap.addEventListener('click',e=>{ if(e.target===mapWrap) mapWrap.style.display='none'; });
 
-    // ====== RENDERERS ======
-    function renderQuestion(i){
-      const q = QUESTIONS[i];
-      const chosen = answers[i];
-      const header = `<div class="row"><strong>Soru ${i+1} / ${QUESTIONS.length}</strong></div>`;
-      const prompt = q.prompt ? `<div class="row muted">${q.prompt.replaceAll('\n','<br>')}</div>` : "";
-      const opts = q.options.map((opt,oi)=>`
-        <label>
-          <input type="radio" name="opt" value="${oi}" ${chosen===oi?"checked":""}/> ${String.fromCharCode(65+oi)}) ${opt}
-        </label>`).join("");
-      screen.innerHTML = header + `<div class="row">${q.text}</div>` + prompt + `<div class="row opts">${opts}</div>`;
-      updateNavButtons();
-      updateProgress();
-      updateMap();
+totalQEl.textContent = QUESTIONS.length;
+passThEl.textContent = PASS_THRESHOLD;
+
+/* ================= RENDERERS ================= */
+function renderQuestion(i){
+  const q = QUESTIONS[i];
+  const chosen = answers[i];
+  const header = `<div class="row"><strong>Soru ${i+1} / ${QUESTIONS.length}</strong></div>`;
+  const prompt = q.prompt ? `<div class="row kps muted">${q.prompt.replaceAll("\n","<br>")}</div>` : "";
+  const opts = q.options.map((opt,oi)=>`
+    <label>
+      <input type="radio" name="opt" value="${oi}" ${chosen===oi?"checked":""}/> ${String.fromCharCode(65+oi)}) ${opt}
+    </label>`).join("");
+  screen.innerHTML = header + `<div class="row">${q.text}</div>` + prompt + `<div class="row opts">${opts}</div>`;
+  updateNavButtons();
+  updateProgress();
+  updateMapCurrent();
+}
+
+function updateNavButtons(){
+  btnPrev.disabled = idx===0 || submitted;
+  btnNext.disabled = idx===QUESTIONS.length-1 || submitted;
+  btnSubmit.disabled = submitted;
+}
+
+function updateProgress(){
+  const answered = answers.filter(a=>a!==null).length;
+  ansCountEl.textContent = answered;
+  const pct = Math.round(100*answered/QUESTIONS.length);
+  bar.style.width = pct + "%";
+  bar.style.background = pct===100 ? "#16a34a" : "#60a5fa";
+}
+
+/* ================= EVENTS ================= */
+screen.addEventListener('change', e=>{
+  if(submitted) return;
+  if(e.target.name==='opt'){
+    answers[idx] = Number(e.target.value);
+    updateProgress();
+    updateMapCell(idx);
+  }
+});
+
+btnPrev.onclick = ()=>{ if(submitted) return; idx=Math.max(0,idx-1); renderQuestion(idx); };
+btnNext.onclick = ()=>{ if(submitted) return; idx=Math.min(QUESTIONS.length-1,idx+1); renderQuestion(idx); };
+btnSubmit.onclick = ()=> trySubmit(false);
+
+/* ================= SUBMIT & SCORE ================= */
+function trySubmit(fromTimer){
+  if(submitted) return;
+
+  if(!fromTimer){
+    const unanswered = answers.findIndex(a=>a===null);
+    if(unanswered!==-1){
+      idx = unanswered; renderQuestion(idx);
+      alert("Tüm soruları işaretleyin.");
+      return;
     }
+  }
 
-    function updateNavButtons(){
-      btnPrev.disabled = idx===0 || submitted;
-      btnNext.disabled = idx===QUESTIONS.length-1 || submitted;
-      btnSubmit.disabled = submitted;
-    }
+  submitted = true;
+  btnPrev.disabled = true; btnNext.disabled = true; btnSubmit.disabled = true;
 
-    function updateProgress(){
-      const answered = answers.filter(a=>a!==null).length;
-      ansCountEl.textContent = answered;
-      const pct = Math.round(100*answered/QUESTIONS.length);
-      bar.style.width = pct + "%";
-      bar.style.background = pct===100 ? "#16a34a" : "#60a5fa";
-      updateMap();
-    }
+  const correct = QUESTIONS.reduce((s,q,i)=>s+(answers[i]===q.answer?1:0),0);
+  const blanks  = answers.filter(a=>a===null).length;
+  const wrong   = QUESTIONS.length - correct - blanks;
+  const passed  = correct >= PASS_THRESHOLD;
+  const percent = ((100*correct)/QUESTIONS.length).toFixed(1);
 
-    // ====== MAP ======
-    function buildRanges(){
-      rangeBar.innerHTML = '';
-      const groups = Math.ceil(QUESTIONS.length / RANGE_SIZE);
-      for(let g=0; g<groups; g++){
-        const start = g*RANGE_SIZE + 1;
-        const end   = Math.min((g+1)*RANGE_SIZE, QUESTIONS.length);
-        const chip = document.createElement('button');
-        chip.className = 'range';
-        chip.dataset.start = start-1;
-        chip.dataset.end   = end-1;
-        chip.textContent = `${start}–${end}`;
-        chip.onclick = ()=>{
-          [...rangeBar.children].forEach(c=>c.classList.remove('active'));
-          chip.classList.add('active');
-          renderQnums(+chip.dataset.start, +chip.dataset.end);
-        };
-        rangeBar.appendChild(chip);
-      }
-      rangeBar.firstChild && rangeBar.firstChild.click();
-    }
+  const review = QUESTIONS.map((q,i)=>{
+    const chosen = answers[i];
+    const ok = chosen===q.answer;
+    const your = chosen!=null ? `${String.fromCharCode(65+chosen)}) ${q.options[chosen]}` : "—";
+    const corr = `${String.fromCharCode(65+q.answer)}) ${q.options[q.answer]}`;
+    return `
+      <div class="card ${ok?"right":"wrong"}">
+        <div><strong>Soru ${i+1}:</strong> ${q.text}</div>
+        ${q.prompt?`<div class="kps muted">${q.prompt.replaceAll("\n","<br>")}</div>`:""}
+        <div class="row"><strong>Senin cevabın:</strong> ${your}</div>
+        <div class="row"><strong>Doğru cevap:</strong> ${corr}</div>
+      </div>`;
+  }).join("");
 
-    function renderQnums(startIdx, endIdx){
-      qnumsEl.innerHTML = '';
-      for(let i=startIdx;i<=endIdx;i++){
-        const b = document.createElement('button');
-        b.className = 'qnum ' + (i===idx ? 'current' : (answers[i]==null ? 'blank' : 'answered'));
-        b.textContent = (i+1);
-        b.onclick = ()=>{ if(!submitted){ idx = i; renderQuestion(idx); } };
-        qnumsEl.appendChild(b);
-      }
-    }
+  result.innerHTML = `
+    <h2>Sonuç</h2>
+    <p>
+      Doğru: <strong>${correct}</strong> |
+      Yanlış: <strong>${wrong}</strong> |
+      Boş: <strong>${blanks}</strong> |
+      Yüzde: <strong>%${percent}</strong>
+    </p>
+    <p class="${passed?'pass':'fail'}"><strong>${passed ? "Geçti" : "Kaldı"}</strong> (Eşik: ${PASS_THRESHOLD} doğru)</p>
+    ${review}
+    <div class="muted kps">Not: Doğru/yanlışlar bu cihazda görüntülenir.</div>`;
+  result.classList.remove('hidden');
+  window.scrollTo({top: result.offsetTop, behavior: "smooth"});
+  clearInterval(timerId);
+}
 
-    function updateMap(){
-      const active = rangeBar.querySelector('.active');
-      if(active) renderQnums(+active.dataset.start, +active.dataset.end);
-    }
+/* ================= TIMER ================= */
+let remaining = DURATION_MIN * 60; // seconds
+function fmt(sec){
+  const m = Math.floor(sec/60).toString().padStart(2,'0');
+  const s = Math.floor(sec%60).toString().padStart(2,'0');
+  return `${m}:${s}`;
+}
+timerEl.textContent = fmt(remaining);
+const timerId = setInterval(()=>{
+  remaining--;
+  timerEl.textContent = fmt(remaining);
+  if(remaining<=0){
+    timerEl.textContent = "00:00";
+    trySubmit(true);
+  }
+},1000);
 
-    // ====== EVENTS ======
-    screen.addEventListener('change', e=>{
-      if(submitted) return;
-      if(e.target.name==='opt'){
-        answers[idx] = Number(e.target.value);
-        updateProgress();
-      }
-    });
+/* ================= MAP (Soru Haritası) ================= */
+function buildMap(){
+  mapGrid.innerHTML = "";
+  for(let i=0;i<QUESTIONS.length;i++){
+    const b = document.createElement('button');
+    b.className = 'qbtn blank';
+    b.textContent = (i+1);
+    b.onclick = ()=>{ idx=i; renderQuestion(idx); mapWrap.style.display='none'; };
+    mapGrid.appendChild(b);
+  }
+  refreshMapAll();
+}
+function refreshMapAll(){
+  for(let i=0;i<QUESTIONS.length;i++) updateMapCell(i);
+  updateMapCurrent();
+}
+function updateMapCell(i){
+  const cell = mapGrid.children[i];
+  if(!cell) return;
+  cell.classList.remove('blank','ans','cur');
+  if(answers[i]==null) cell.classList.add('blank'); else cell.classList.add('ans');
+  if(i===idx) cell.classList.add('cur');
+}
+function updateMapCurrent(){
+  for(let i=0;i<mapGrid.children.length;i++){
+    mapGrid.children[i].classList.toggle('cur', i===idx);
+  }
+}
 
-    btnPrev.onclick = ()=>{ if(submitted) return; idx=Math.max(0,idx-1); renderQuestion(idx); };
-    btnNext.onclick = ()=>{ if(submitted) return; idx=Math.min(QUESTIONS.length-1,idx+1); renderQuestion(idx); };
-    btnSubmit.onclick = ()=> trySubmit(false);
-    btnToggleMap.onclick = ()=>{ mapPanel.classList.toggle('show'); };
-
-    // ====== SCORING & SUBMIT ======
-    function trySubmit(fromTimer){
-      if(submitted) return;
-      if(!fromTimer){
-        const unanswered = answers.findIndex(a=>a===null);
-        if(unanswered!==-1){
-          idx = unanswered; renderQuestion(idx);
-          alert("Tüm soruları işaretleyin.");
-          return;
-        }
-      }
-      submitted = true;
-      btnPrev.disabled = true; btnNext.disabled = true; btnSubmit.disabled = true;
-
-      const correct = QUESTIONS.reduce((s,q,i)=>s+(answers[i]===q.answer?1:0),0);
-      const blanks  = answers.filter(a=>a===null).length;
-      const wrong   = QUESTIONS.length - correct - blanks;
-      const passed  = correct >= PASS_THRESHOLD;
-      const percent = ((100*correct)/QUESTIONS.length).toFixed(1);
-
-      const review = QUESTIONS.map((q,i)=>{
-        const chosen = answers[i];
-        const ok = chosen===q.answer;
-        const your = chosen!=null ? `${String.fromCharCode(65+chosen)}) ${q.options[chosen]}` : "—";
-        const corr = `${String.fromCharCode(65+q.answer)}) ${q.options[q.answer]}`;
-        return `
-          <div class="card ${ok?"right":"wrong"}">
-            <div><strong>Soru ${i+1}:</strong> ${q.text}</div>
-            ${q.prompt?`<div class="kps muted">${q.prompt.replaceAll('\n','<br>')}</div>`:""}
-            <div class="row"><strong>Senin cevabın:</strong> ${your}</div>
-            <div class="row"><strong>Doğru cevap:</strong> ${corr}</div>
-          </div>`;
-      }).join("");
-
-      result.innerHTML = `
-        <h2>Sonuç</h2>
-        <p>Doğru: <strong>${correct}</strong> | Yanlış: <strong>${wrong}</strong> | Boş: <strong>${blanks}</strong> | Yüzde: <strong>%${percent}</strong></p>
-        <p class="${passed?'pass':'fail'}"><strong>${passed ? "Geçti" : "Kaldı"}</strong> (Eşik: ${PASS_THRESHOLD} doğru)</p>
-        ${review}
-        <div class="muted kps">Not: Doğru/yanlışlar bu cihazda görüntülenir.</div>`;
-      result.classList.remove('hidden');
-      window.scrollTo({top: result.offsetTop, behavior: "smooth"});
-      clearInterval(timerId);
-    }
-
-    // ====== TIMER ======
-    let remaining = DURATION_MIN * 60;
-    function fmt(sec){
-      const m = Math.floor(sec/60).toString().padStart(2,'0');
-      const s = Math.floor(sec%60).toString().padStart(2,'0');
-      return `${m}:${s}`;
-    }
-    timerEl.textContent = fmt(remaining);
-    const timerId = setInterval(()=>{
-      remaining--;
-      timerEl.textContent = fmt(remaining);
-      if(remaining<=0){
-        timerEl.textContent = "00:00";
-        trySubmit(true);
-      }
-    },1000);
-
-    // ====== START ======
-    buildRanges();
-    renderQuestion(idx);
-  </script>
+/* ================= START ================= */
+renderQuestion(idx);
+</script>
 </body>
 </html>
-
