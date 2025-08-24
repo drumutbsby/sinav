@@ -1,0 +1,1171 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>100 Soru Test</title>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;max-width:900px;margin:24px auto;padding:0 16px}
+    .row{margin:10px 0}
+    .card{border:1px solid #ddd;border-radius:12px;padding:20px;margin:16px 0}
+    .opts label{display:block;margin:6px 0;padding:8px;border:1px solid #e5e5e5;border-radius:8px;cursor:pointer}
+    .btns{display:flex;gap:8px;margin-top:12px}
+    button{padding:10px 14px;border:1px solid #ccc;border-radius:10px;background:#f7f7f7;cursor:pointer}
+    button[disabled]{opacity:.5;cursor:not-allowed}
+    .progress{height:10px;background:#eee;border-radius:6px;overflow:hidden;margin:8px 0 16px}
+    .bar{height:100%;width:0%}
+    .right{background:#d9f7e0}
+    .wrong{background:#ffe3e3}
+    .muted{color:#666}
+    .kps{font-size:12px}
+    .hidden{display:none}
+    .header{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+    .badge{border:1px solid #ddd;border-radius:999px;padding:6px 10px}
+    .pass{color:#15803d}
+    .fail{color:#b91c1c}
+    /* Soru Haritası */
+    .map-toggle{margin-left:auto}
+    .map{display:none}
+    .map.show{display:block}
+    .ranges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+    .range{padding:6px 10px;border:1px solid #ddd;border-radius:999px;cursor:pointer}
+    .range.active{background:#eef6ff;border-color:#93c5fd}
+    .qnums{display:flex;flex-wrap:wrap;gap:6px}
+    .qnum{width:32px;height:32px;border:1px solid #ddd;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px}
+    .qnum.answered{background:#d9f7e0;border-color:#8fd19a}
+    .qnum.blank{background:#eee}
+    .qnum.current{background:#bfdbfe;border-color:#60a5fa}
+  </style>
+</head>
+<body>
+  <h1>Uzmanlık Sınavı Simülasyonu</h1>
+
+  <div class="header">
+    <div class="badge">Süre: <strong id="timer">120:00</strong></div>
+    <div class="badge">Yanıtlanan: <strong id="ansCount">0</strong>/<span id="totalQ">0</span></div>
+    <div class="badge">Eşik: <strong id="passThreshold">70</strong> doğru</div>
+    <button id="toggleMap" class="badge map-toggle">Soru Haritası</button>
+  </div>
+
+  <div class="progress"><div class="bar" id="bar"></div></div>
+
+  <div id="mapPanel" class="card map">
+    <div class="ranges" id="rangeBar"></div>
+    <div class="qnums" id="qnums"></div>
+  </div>
+
+  <div id="screen" class="card"></div>
+  <div class="btns">
+    <button id="prev">Geri</button>
+    <button id="next">İleri</button>
+    <button id="submit">Gönder</button>
+  </div>
+
+  <div id="result" class="card hidden"></div>
+
+  <script>
+    // ====== SETTINGS ======
+    const DURATION_MIN = 120;
+    const PASS_THRESHOLD = 70;
+    const RANGE_SIZE = 10;
+
+    // ====== QUESTIONS ======
+    // BURAYA DİZİNİ KOY
+        const QUESTIONS = [
+  {
+    id: 1,
+    difficulty: "Kolay",
+    text: "Aşağıdakilerden hangisi dijital dönüşüm sürecinin bir çıktısı olarak değerlendirilebilir?",
+    options: [
+      "Fiziksel belge arşivlerinin artırılması",
+      "Müşteri taleplerine daha yavaş yanıt verilmesi",
+      "Operasyonel süreçlerin otomasyonla desteklenmesi",
+      "Manuel işlem yoğunluğunun korunması",
+      "Bilgi sistemlerinin kullanımının azaltılması"
+    ],
+    answer: 2
+  },
+  {
+    id: 2,
+    difficulty: "Orta",
+    text: "Aşağıdakilerden hangisi, bankalarda yapay zekâ destekli sistemlerin karar alma süreçlerinde benimsenmesi durumunda çalışanların yeni beceriler geliştirmesini gerektirecek bir durumdur?",
+    options: [
+      "Tamamen kural tabanlı sistemlerin kullanılması",
+      "Veri yorumlama ve müşteri bağlamını analiz etme",
+      "Donanım bakımı ve yedekleme işlemleri",
+      "Şube içi fiziksel belge dolaşımını düzenleme",
+      "Sabit görev tanımlarıyla çalışma"
+    ],
+    answer: 1
+  },
+  {
+    id: 3,
+    difficulty: "Zor",
+    text: "Aşağıdaki öncüllerden hangileri, yapay zekâ sistemlerinde algoritmik şeffaflığı sağlamanın unsurları arasında sayılabilir?",
+    prompt: "I. Karar süreçlerinin geriye dönük izlenebilir olması\nII. Algoritma kodlarının tamamen ticari sır olarak saklanması\nIII. Kullanıcının sistemin önerilerine neden ulaştığını anlayabilmesi",
+    options: [
+      "Yalnız I",
+      "I ve III",
+      "Yalnız II",
+      "I ve II",
+      "II ve III"
+    ],
+    answer: 1
+  },
+  {
+    id: 4,
+    text: "Teslim Şekilleri (Incoterms)’in kapsamı aşağıdakilerden hangisidir?",
+    options: [
+      "Sigorta sözleşmeleri",
+      "Nakliye Sözleşmeleri",
+      "Satım Sözleşmesi",
+      "Finansman Sözleşmesi"
+    ],
+    answer: 2
+  },
+  {
+    id: 5,
+    text: "Satıcının yükümlülüğünün en az olduğu teslim şekli aşağıdakilerden hangisidir?",
+    options: [
+      "Exw",
+      "FOB",
+      "CFR",
+      "CIF"
+    ],
+    answer: 0
+  },
+  {
+    id: 6,
+    text: "ABC AŞ, Bursa’da ürettiği Tekstil ürünlerini New York’ta faaliyette bulunan Park Inc.’e satmaktadır. Anlaşmaları CFR İstanbul’dur. Mallar Bursa’dan karayolu ile İstanbul Gümrüğüne gelmekte ve buradan gemiye yüklenmektedir. Limanda gemiye yükleme sırasında vinç kopmuş ve mallar hasar görmüştür. Daha sonra yükleme tamamlanarak gemi limandan ayrılmıştır.\n\nLimanda meydana gelen hasar ile ilgili sorumluluk kimdedir?",
+    options: [
+      "Satıcıda",
+      "Alıcıda",
+      "Sigortacıda",
+      "Liman İşletmelerinde"
+    ],
+    answer: 0
+  },
+  {
+    id: 7,
+    text: "3. Soruda İstanbul limanından New York’a kadar olan navlun ve sigorta masrafını kim öder?",
+    options: [
+      "Navlun Alıcı – Sigorta Satıcı",
+      "Navlun ve Sigorta Satıcı",
+      "Navlun ve Sigorta Alıcı",
+      "Navlun satıcı – Sigorta Alıcı"
+    ],
+    answer: 3
+  },
+  {
+    id: 8,
+    text: "Deniz Konşimentosunu karayolu taşıma belgesinden ayıran en önemli özellik hangisidir?",
+    options: [
+      "İsme düzenlenir.",
+      "Yükleme ve boşaltma yerini gösterir.",
+      "Mal mülkiyetini gösterir.",
+      "Öncelik hakkı verir."
+    ],
+    answer: 2
+  },
+  {
+    id: 9,
+    text: "Havayolu konşimentosu bankaya teminat olarak verilirse, banka nelere dikkat etmelidir?",
+    options: [
+      "1. Nüsha havayolu şirketine verilmelidir.",
+      "2. Nüsha bankaya verilmelidir.",
+      "3. Nüsha bankaya verilmeli ve gönderilen olarak banka yazılmalıdır.",
+      "1. Nüsha bankaya verilmeli ve gönderilen olarak banka yazılmalıdır."
+    ],
+    answer: 2
+  },
+  {
+    id: 10,
+    text: "Mallar yüklenmeden önce yapılan sigortada kullanılan sigorta belgesine ne ad verilir?",
+    options: [
+      "Sigorta poliçesi",
+      "Sigorta makbuzu",
+      "Flotan sigorta",
+      "Sigorta Sertifikası"
+    ],
+    answer: 2
+  },
+  {
+    id: 11,
+    text: "Akreditifli ödemelerde teyidi hangi taraf verir?",
+    options: [
+      "İthalatçı ve bankası",
+      "İhracatçı ve bankası",
+      "İhracatçının bankası veya başka bir görevli banka",
+      "Amir ya da rambursman banka"
+    ],
+    answer: 2
+  },
+  {
+    id: 12,
+    text: "Dış Ticarette akreditifi kim açtırır?",
+    options: [
+      "İhracatçı",
+      "Ramburse Banka",
+      "İthalatçı",
+      "İhracatçının Bankası"
+    ],
+    answer: 2
+  },
+  {
+    id: 13,
+    text: "Teyitsiz akreditifte belgelerin ibraz yeri genellikle neresidir?",
+    options: [
+      "İhracatçının ülkesi",
+      "Muhabir banka",
+      "Rambursman Bankası",
+      "Akreditifi açan banka ve ülkesi"
+    ],
+    answer: 3
+  },
+  {
+    id: 14,
+    text: "Belgesi olmayan ve döviz geliri bulunan yerleşik kişilere hangi şartlarda döviz kredisi kullandırılır?",
+    options: [
+      "İhracat Sayılan Satış ve Teslimler karşılığında",
+      "Döviz kazandırıcı faaliyetlerin finansmanı için",
+      "Ortalama vadenin 1 yıldan uzun olması karşılığında 5 Milyon $ ve üzeri kullandırım",
+      "Mal ihracatının finansmanı için"
+    ],
+    answer: 3
+  },
+  {
+    id: 15,
+    text: "Yaren Tekstil Ürünleri AŞ, ABD’deki müşterisi Anne Taylor Inc. ile yapılan sözleşme gereği yüklemenin şartları aşağıdaki gibidir:\nYükleme Limanı: İstanbul\nTeslim Şekli: FOB İstanbul, Incoterms 2010\nVarış Limanı: Port Otority / NYC\n\nMalların İstanbul’daki fabrikadan İstanbul Limanına kadar olan taşıma masraf ve risk kime aittir?",
+    options: [
+      "Yaren AŞ",
+      "Anne Taylor",
+      "İkisi ortak",
+      "Nakliyeci",
+      "Sigortacı"
+    ],
+    answer: 0
+  },
+  {
+    id: 16,
+    text: "Yukarıdaki soruda: İstanbul Limanında malların gemiye yüklenmesine ilişkin masraflar ve risk kime aittir?",
+    options: [
+      "Yaren AŞ",
+      "Anne Taylor",
+      "İkisi ortak",
+      "Sigortacı",
+      "Liman İşletmeleri"
+    ],
+    answer: 0
+  },
+  {
+    id: 17,
+    text: "Yukarıdaki soruda; Geminin limandan ayrılmasından sonra seyir halindeyken yakalandığı fırtına nedeniyle hasar gören malın riski kime aittir?",
+    options: [
+      "Yaren AŞ",
+      "Anne Taylor",
+      "İkisi ortak",
+      "Nakliyeci",
+      "Sigortacı"
+    ],
+    answer: 1
+  },
+  {
+    id: 18,
+    text: "Sun Firması, New York’tan aldığı ürün için İstanbul’daki fabrikasına kadar tüm masrafları ödemiştir. Bu ithalatta hangi teslim şekli kullanılmıştır?",
+    options: [
+      "FAS",
+      "FOB",
+      "EXW",
+      "CFR",
+      "CIF"
+    ],
+    answer: 2
+  },
+  {
+    id: 19,
+    text: "Optik AŞ, ABD’deki Kors firmasından Londra ofisi için ürün almıştır. Teslim şekli CFR teslim şeklidir.\n• New York’taki fabrikadan New York’taki limana kadar hasar ve masraflar kime aittir?\n• New York’taki limandan Londra’ya kadar navlunu ve sigortayı kim öder?\n• Atlas Okyanusunda seyir halindeyken gemideki mallarda hasar meydana gelirse hasardan kim sorumludur?",
+    options: [
+      "a-Optik b-Navlun Kors, Sigorta Optik c-Optik",
+      "a-Kors b-Hepsi Kors c-Optik",
+      "a-Kors b-Hepsi Optik c-Kors",
+      "a-Optik b-Navlun Optik, Sigorta Kors c-Kors",
+      "a-Kors b-Navlun Kors, Sigorta Optik c-Optik"
+    ],
+    answer: 4
+  },
+  {
+    id: 20,
+    text: "FiS AŞ, Çin’deki ZU firmasından yapacağı ithalatta CIF teslim şeklini kullanmaktadır.\n• Çin’deki fabrikadan İstanbul’a kadar olan navlunu ve sigortayı kim öder?\n• Yükleme sırasında malda hasar meydana gelirse hasar sorumluluğu kimdedir?\n• Denizde kopan fırtına nedeniyle şehir halindeyken oluşan hasardan kim sorumludur?",
+    options: [
+      "a-ZU b-ZU c-FiS",
+      "a-FiS b-ZU c-Nakliyeci",
+      "a-ZU b-Liman İşletmeleri c-Sigortacı",
+      "a-FiS b-Sigortacı ve Liman c-FiS",
+      "a-ZU b-Liman İşletmeleri c-Sigortacı"
+    ],
+    answer: 0
+  },
+  {
+    id: 21,
+    text: "FAS (Free Alongside Ship) ile CIF (Cost, Insurance and Freight) arasındaki teslim şekli farklılığı hangisidir?",
+    options: [
+      "Satıcının yükümlülüğü FAS’da daha fazladır",
+      "Alıcının yükümlülüğü FAS’da daha fazladır",
+      "Alıcının yükümlülüğü CIF’de daha fazladır",
+      "Satıcının yükümlülüğü CIF’de daha fazladır",
+      "Yükümlülükler ikisinde de aynıdır"
+    ],
+    answer: 3
+  },
+  {
+    id: 22,
+    text: "İhracatçı tarafından sorumluluğu yükleme limanında biten teslim şekli hangisidir?\n\ni) FAS ii) CIF iii) EXW iv) FOB v) CFR",
+    options: [
+      "i,ii,v",
+      "i,iv",
+      "iii,v",
+      "iv",
+      "i,iv,v"
+    ],
+    answer: 1
+  },
+  {
+    id: 23,
+    text: "Aşağıdakilerden hangisi Varış Limanına Kadar Navlun Ödenmiş Olarak Teslim (CFR) şeklinde satıcının sorumluluklarından biri değildir?",
+    options: [
+      "İhracat işlemlerini gerçekleştirmek",
+      "Malları satış sözleşmesinde belirlenen yerde hazır etmek",
+      "Malların gemiye yüklenmesi sırasındaki masrafları ödemek",
+      "Varış limanındaki boşaltma masraflarını ödemek",
+      "Yükleme limanındaki vergileri ödemek"
+    ],
+    answer: 4
+  },
+  {
+    id: 24,
+    text: "Kenan Elektrik AŞ, ithalatlarının tamamını ABD’den yapmaktadır. 5 firma kendisine teklif vermiştir. Firmaların teklifleri aşağıdaki gibidir:\n\nFirmalar   Mal Bedeli ($)   Teslim Şekli\nPark Inc.      1.000.000         FOB NY\nMadison Inc.   1.100.000         EXW NY\nLexington Inc. 1.200.000         CIF İST\nVermont Inc.   1.050.000         FAS NY\nAdler Inc.     1.150.000         CFR NY\n\nNavlun bedeli $200,000, sigorta bedeli $1,000 ise hangi firmadan en uygun fiyata alım yaparsınız?",
+    options: [
+      "Park Inc.",
+      "Madison Inc.",
+      "Lexington Inc.",
+      "Vermont Inc.",
+      "Adler Inc."
+    ],
+    answer: 4
+  },
+  {
+    id: 25,
+    text: "BOY Firması, İstanbul Limanından New York Port Otority Limanına malları göndermektedir. Firmanın ürünlerinde kalite ile ilgili herhangi bir sorun yaşanmamaktadır. Ödeme akreditiflidir. BOY Tekstil Ltd. Şti.’nin gümrük işlerine bakan elemanı; deniz konşimentosu, ticari fatura, karayolu taşıma belgesi, gözetim belgesi, sigorta poliçesi, ATR, gümrük beyannamesi ve poliçe düzenlemiştir. Firmanın gümrük firması ise fazla evrak verdiği gerekçesiyle bazı evrakları iade etmiştir. Firmanın elemanına iade edilen evraklar aşağıdakilerden hangisidir?",
+    options: [
+      "Gümrük beyannamesi, ATR ve Poliçe",
+      "Sigorta poliçesi, ATR ve Poliçe",
+      "Karayolu taşıma belgesi, ATR ve Poliçe",
+      "Karayolu taşıma belgesi, Ticari fatura, ATR",
+      "Konşimento, ATR, Karayolu taşıma belgesi"
+    ],
+    answer: 2
+  },
+  {
+    id: 26,
+    text: "Deniz konşimentosunda zorunlu unsurlardan birisinin eksik olduğunu gören A Bankası personeli, ciro yoluyla devredilemeyeceğini ilgili kişilere söylemiştir. Firma yetkilisi ise buna itiraz etmiş ve yapılan görüşmeler sonucunda firma yetkilisinin itirazı banka yetkililerince kabul edilmiştir. Sizce firma yetkilisinin kabul gören itirazı aşağıdakilerden hangisidir?",
+    options: [
+      "Deniz konşimentosu kıymetli evrak değildir.",
+      "Deniz konşimentosu şekle bağlı bir kıymetli evrak değildir.",
+      "Deniz konşimentosu ciro edilemez.",
+      "Deniz konşimentosu isme düzenlenir.",
+      "Deniz konşimentosu mal mülkiyetini göstermez."
+    ],
+    answer: 1
+  },
+  {
+    id: 27,
+    text: "Belirtilen ödeme şekillerinden hangisinin ithalatında vade vardır ve ithalatçı firmalar KKDF öder?",
+    options: [
+      "Görüldüğünde ödemeli akreditif",
+      "Teyitli Akreditif",
+      "Mal Mukabili",
+      "Vesaik Mukabili",
+      "Teyitsiz Akreditif"
+    ],
+    answer: 2
+  },
+  {
+    id: 28,
+    text: "Uluslararası satış sözleşmelerinde kullanılan teslim şekilleri aşağıdakilerden hangisi tarafından hazırlanmıştır?",
+    options: [
+      "Milletlerarası Ticaret Odası",
+      "Uluslararası Kalkınma Ajansı",
+      "Dünya Ticaret Örgütü",
+      "Uluslararası Para Fonu",
+      "Gümrük Tarifeleri ve Ticaret Genel Anlaşması"
+    ],
+    answer: 0
+  },
+
+  {
+    id: 29,
+    text: "Faiz swapları hangi amaçla kullanılmaz?",
+    options: [
+      "Borçlanma ve yatırımlarda faiz riskinden korunmak",
+      "Karşılıklı borçlanma maliyeti avantajlarından yararlanmak",
+      "Bilançoda Aktif ve Pasif yapılandırması",
+      "Doğabilecek kur riskine karşı korunma sağlamak",
+      "Nakit akışı yapılandırması"
+    ],
+    answer: 3
+  },
+  {
+    id: 30,
+    text: "Hangisi hem Organize Piyasalarda (Borsalarda) hem de Tezgah Üstü Piyasalarda (OTC) işlem görür?",
+    options: [
+      "Forward",
+      "Future",
+      "Opsiyon",
+      "Swap",
+      "Kira Sertifikası"
+    ],
+    answer: 2
+  },
+  {
+    id: 31,
+    text: "Hangisi Forward özelliklerinden biri değildir?",
+    options: [
+      "Vadesi baştan bellidir",
+      "Fiyat taraflar arasında vade tarihi için baştan belirlenir",
+      "Hem alıcı hem de satıcı için geri dönülemez yükümlülüktür",
+      "İşlem öncesi taraflar kendi aralarında özel anlaşma yapar",
+      "Hem OTC hem de Organize piyasalarda işlem görür"
+    ],
+    answer: 4
+  },
+  {
+    id: 32,
+    text: "€/$ = 1,0000 ve €/CHF = 1,2000 ise çapraz kur hesaplaması yöntemi ile $/CHF kuru nedir?",
+    options: [
+      "1,2000",
+      "1,0020",
+      "1,0200",
+      "1,0000",
+      "12,000"
+    ],
+    answer: 0
+  },
+  {
+    id: 33,
+    text: "EUR/TRL spotta 46,75 iken, 1 ay sonrası için hesaplanan swap puanı 210 baz puan ise bankanın forward kuru nedir?",
+    options: [
+      "48,75",
+      "48,85",
+      "48,96",
+      "67,75",
+      "67,85"
+    ],
+    answer: 1
+  },
+  {
+    id: 34,
+    text: "Belirli bir kıymeti belirli bir fiyattan belirli bir tarihte alma veya satma hakkı veren sözleşme hangisidir?",
+    options: [
+      "Forward",
+      "Swap",
+      "Opsiyon",
+      "Future",
+      "Spot"
+    ],
+    answer: 2
+  },
+  {
+    id: 35,
+    text: "Aşağıdakilerden 3 tanesi opsiyon fiyatına etki eder. Hangisi tüm türev ürünlerin fiyatına etki eden faktördür?",
+    options: [
+      "Volatilitesi",
+      "Call veya Put olması",
+      "Amerikan veya Avrupa olması",
+      "Opsiyonun kullanım fiyatı (strike price)",
+      "Kur veya paritenin spot piyasa seviyesi"
+    ],
+    answer: 4
+  },
+  {
+    id: 36,
+    text: "Hangisi bir opsiyon kontratında bulunması gereken şartlardan biri değildir?",
+    options: [
+      "İşlemin yapıldığı yer ve saati",
+      "Kontratın geçerlilik süresi (vadesi)",
+      "Teslimat koşulları",
+      "Amerikan veya Avrupa tipi olduğu",
+      "Call veya Put olduğu"
+    ],
+    answer: 0
+  },
+  {
+    id: 37,
+    text: "Döviz kurlarında artış bekleniyorsa bankayı kârlı duruma geçiren hangisidir?",
+    options: [
+      "Dövizli Aktifler > Dövizli Pasifler",
+      "Dövizli Aktifler = Dövizli Pasifler",
+      "Dövizli Aktifler < Dövizli Pasifler",
+      "Krediler > Mevduat",
+      "Krediler < Mevduat"
+    ],
+    answer: 0
+  },
+  {
+    id: 38,
+    text: "Hangisi para politikası araçlarından biri değildir?",
+    options: [
+      "Reeskont Politikası",
+      "Açık Piyasa İşlemleri",
+      "Zorunlu Karşılıklar",
+      "Döviz İşlemleri",
+      "Enflasyon"
+    ],
+    answer: 4
+  },
+  {
+    id: 39,
+    text: "İki taraf arasında bir sözleşme çerçevesinde geri alma vaadiyle menkul kıymet satış işlemi yapılması hangisidir?",
+    options: [
+      "Repo",
+      "Forward",
+      "Opsiyon",
+      "DCD",
+      "Sıfır Primli Opsiyon"
+    ],
+    answer: 0
+  },
+  {
+    id: 40,
+    text: "Her türlü varlık ve hakkın finansmanı için varlık kiralama şirketi tarafından ihraç edilen kıymetler hangisidir?",
+    options: [
+      "Hazine Bonosu",
+      "Banka Bonosu",
+      "Özel Sektör Tahvili",
+      "Devlet Tahvili",
+      "Kira Sertifikası"
+    ],
+    answer: 4
+  },
+  {
+    id: 41,
+    text: "US Dolar için gösterge faiz oranı (Benchmark interest rate) olarak kullanılan faiz hangisidir?",
+    options: [
+      "EURIBOR",
+      "SONIA",
+      "SOFR",
+      "TLREF",
+      "TONAR"
+    ],
+    answer: 2
+  },
+  {
+    id: 42,
+    text: "Hangisi Şubeler Cari Faizinin düşürülmesinin sebebi olamaz?",
+    options: [
+      "Banka likit durumdadır",
+      "Banka kredi vermek istiyordur",
+      "Banka mevduat toplamak istiyordur",
+      "Para piyasasının getirisi kredilerin getirisinden düşük kalmıştır",
+      "Şubeleri kredi vermeye yönlendirmek istiyordur"
+    ],
+    answer: 2
+  },
+  {
+    id: 43,
+    text: "Bankaların yabancı bankalar nezdinde ve yabancı para cinsinden açtıkları hesaplar hangisidir?",
+    options: [
+      "Vostro",
+      "Loro",
+      "Nostro",
+      "Lostro",
+      "YP Hesaplar"
+    ],
+    answer: 2
+  },
+  {
+    id: 44,
+    text: "Yurt dışına mal satan ihracatçı kur riskine korunmak ancak kur yükselişinden avantaj sağlamak için hangi türev ürünü seçmelidir?",
+    options: [
+      "Call Opsiyon",
+      "Put Opsiyon",
+      "Forward",
+      "Swap",
+      "Future"
+    ],
+    answer: 1
+  },
+  {
+    id: 45,
+    text: "Riski oluşturan yönün tersine pozisyon alarak fiyat riskini yok etmek eylemi hangisidir?",
+    options: [
+      "Korunma (Hedging)",
+      "Trading",
+      "Spekülasyon",
+      "Manipülasyon",
+      "Pozitif İşlem"
+    ],
+    answer: 0
+  },
+  {
+    id: 46,
+    text: "Faiz oranlarında artış bekleyen bir banka bilançosunu hangi duruma göre yapılandırmalıdır?",
+    options: [
+      "Kısa vadeli aktifler ve uzun vadeli pasifler arttırılır",
+      "Kısa vadeli aktifler ve kısa vadeli pasifler arttırılır",
+      "Uzun vadeli aktifler ve kısa vadeli pasifler arttırılır",
+      "Uzun vadeli aktifler ve kısa vadeli aktifler arttırılır",
+      "Uzun vadeli aktifler ve kısa vadeli aktifler arttırılır"
+    ],
+    answer: 0
+  },
+  {
+    id: 47,
+    text: "Alındığı tarihten sonra vadesine kadar alan tarafın istediği anda kullanılabildiği opsiyon tipi hangisidir?",
+    options: [
+      "Avrupa",
+      "Amerika",
+      "Asya",
+      "Bermuda",
+      "Körfez"
+    ],
+    answer: 1
+  },
+  {
+    id: 48,
+    text: "Herhangi bir finansal ürün için verilen alım satım fiyatı hangisi ile tanımlanır?",
+    options: [
+      "Repo",
+      "Reeskont",
+      "Kotasyon",
+      "Döviz Kuru",
+      "Swap"
+    ],
+    answer: 2
+  },
+  {
+    id: 49,
+    text: "Hangisi sadece organize piyasalarda (borsalarda) kontrat büyüklüğünün %10’u civarında teminatla alınıp satılır?",
+    options: [
+      "Swap",
+      "Forward",
+      "Future",
+      "Spot",
+      "Opsiyon"
+    ],
+    answer: 2
+  },
+  {
+    id: 50,
+    text: "Hangisi Aktif-Pasif Yönetiminin amaçlarından değildir?",
+    options: [
+      "Faiz dışı giderlerin kontrolü",
+      "Bankanın halka arzına karar vermek",
+      "Net Faiz gelirlerinin artırılması",
+      "Likiditenin sağlanması",
+      "Bankanın istikrarının sağlanması ve korunması"
+    ],
+    answer: 1
+  },
+  {
+    id: 51,
+    text: "Döviz ve efektif arasındaki farklardan aşağıdakilerden hangisi dövizin efektife göre avantajlarından değildir?\nI) Dövizin mobilitesi vardır\nII) Dövizin saklanması kolaydır\nIII) Dövizin neması vardır\nIV) Döviz her yerde geçerlidir",
+    options: [
+      "Yalnız I",
+      "Yalnız IV",
+      "Yalnız III",
+      "I ve II",
+      "I ve III"
+    ],
+    answer: 1
+  },
+  {
+    id: 52,
+    text: "Hangisi faiz oranlarını etkileyen faktörlerden biri değildir?",
+    options: [
+      "TCMB para politikası",
+      "Kredi talebi",
+      "Bankaların likidite durumu",
+      "Para arzı/Enflasyon",
+      "İthalat/İhracat"
+    ],
+    answer: 2
+  },
+  {
+    id: 53,
+    text: "“Amacı, süre kısıtı ve özgünlüğü olan tüm işler olarak tanımlanabilir. Günlük rutin, idari ve operasyonel işlerden ayrı tutulmalı ve özünlüklerine göre organize edilmelidir.” Yukarıdaki tanım hangi kavrama aittir?",
+    options: ["Proje","Plan","Program","Agile","Tasarım"],
+    answer: 0
+  },
+  {
+    id: 54,
+    text: "Yönetim ve idare ayrımı aşağıdakilerden hangisinde doğru verilmiştir?",
+    options: [
+      "Yönetim operasyonu yürütür, idare vizyonu belirler",
+      "Yönetim vizyonu (yönü) belirler, idare operasyonu yürütür",
+      "Her ikisi de yalnızca operasyonu yürütür",
+      "Her ikisi de yalnızca vizyon belirler",
+      "İdare stratejiyi, yönetim günlük işleri yürütür"
+    ],
+    answer: 1
+  },
+  {
+    id: 55,
+    text: "Aşağıdakilerden hangisi proje yönetimi kısıtlarından biri DEĞİLDİR?",
+    options: ["Süre","Kapsam","Maliyet","Kalite","İnsan kaynağı memnuniyeti"],
+    answer: 4
+  },
+  {
+    id: 56,
+    text: "Proje yaşam döngüsünün temel süreçleri aşağıdakilerin hangisinde eksiksiz ve doğru sırada verilmiştir?",
+    options: [
+      "Planlama, uygulama, izleme ve kontrol, kapatma, başlatma",
+      "Başlatma, uygulama, planlama, izleme ve kontrol, kapatma",
+      "Başlatma, planlama, uygulama, izleme ve kontrol, kapatma",
+      "Planlama, başlatma, kapatma, uygulama, izleme ve kontrol",
+      "Uygulama, planlama, başlatma, kapatma, izleme ve kontrol"
+    ],
+    answer: 2
+  },
+  {
+    id: 57,
+    text: "Başlatma sürecinde oluşturulan temel dokümanlar aşağıdakilerden hangisidir?",
+    options: [
+      "Proje beratı, Proje paydaş listesi",
+      "Proje planı, İletişim planı",
+      "Risk kaydı, Kapsam bildirimi",
+      "Zaman çizelgesi, Bütçe",
+      "Değişiklik kaydı, Ders çıkarımları"
+    ],
+    answer: 0
+  },
+  {
+    id: 58,
+    text: "Proje beratı aşağıdakilerden hangisiyle en doğru şekilde tanımlanır?",
+    options: [
+      "Projenin kapanışta üretilen son raporudur",
+      "Projenin sistematik olarak hazırlanan ilk dokümanıdır; kapsam, süre, maliyet ve kalite gibi temel kısıtları tanımlar ve sponsor onayıyla proje resmen başlar",
+      "Yalnızca paydaş iletişim kurallarını içerir",
+      "Sadece bütçe ve takvimi içerir",
+      "Yalnızca proje ekibinin görev tanımlarını içerir"
+    ],
+    answer: 1
+  },
+  {
+    id: 59,
+    text: "Paydaş tanımı aşağıdakilerden hangisidir?",
+    options: [
+      "Proje ekibi içindeki yöneticiler",
+      "Proje çıktılarından yalnızca olumlu etkilenen taraflar",
+      "Proje çıktılarından olumsuz etkilenenler",
+      "Proje çıktısını olumlu ya da olumsuz etkileyen ve/veya etkilenen tüm taraflar",
+      "Sadece müşteri temsilcileri"
+    ],
+    answer: 3
+  },
+  {
+    id: 60,
+    text: "Paydaşlarla çalışma stratejisi nasıl belirlenir?",
+    options: [
+      "Paydaşların rastgele seçimiyle",
+      "Yalnızca paydaş sayısına göre",
+      "Paydaşların ilgi ve güç seviyelerine göre",
+      "Sadece bütçe büyüklüğüne göre",
+      "Sadece proje süresine göre"
+    ],
+    answer: 2
+  },
+  {
+    id: 61,
+    text: "Aşağıdaki kısaltmalardan hangisinin açılımı doğru verilmiştir?",
+    options: [
+      "PMI: Project Management Body of Knowledge",
+      "PMBoK: Project Management Professional",
+      "PMP: Project Management Professional",
+      "PRINCE2: Project Management Institute",
+      "PMP: Projects IN Controlled Environments"
+    ],
+    answer: 2
+  },
+  {
+    id: 62,
+    text: "Aşağıdakilerden hangisi etik yaşamın dört temel boyutundan biri DEĞİLDİR?",
+    options: [
+      "Kişinin zihinsel ve fiziksel sağlığını gözetmek",
+      "Aile ve arkadaşlarla saygı, paylaşım ve muhabbeti korumak",
+      "Toplum için bir hizmet/ürün üretmek",
+      "Çevreye zarar vermemek ve gelişime katkı sağlamak",
+      "Finansal kazancı her durumda en yükseğe çıkarmak"
+    ],
+    answer: 4
+  },
+  {
+    id: 63,
+    text: "Doğru karar aşağıdakilerden hangisiyle tanımlanır?",
+    options: [
+      "En hızlı verilen karardır",
+      "Projede en düşük maliyete yol açan karardır",
+      "Dört etik boyutta toplamda en çok faydayı ve en az zararı sağlayan karardır",
+      "Çoğunluğun istediği karardır",
+      "Yalnızca yöneticinin onayladığı karardır"
+    ],
+    answer: 2
+  },
+  {
+    id: 64,
+    text: "Projede çıktısı ürünlerde müşteri ihtiyaçlarını belirlemek ve sınıflamak için kullanılan kalite modeli aşağıdakilerden hangisidir?",
+    options: ["Six Sigma","ISO 9001","Kano Modeli","Balanced Scorecard","TQM"],
+    answer: 2
+  },
+  {
+    id: 65,
+    text: "Proje süresini kısaltmak (termin tarihini öne çekmek) neden önemlidir?",
+    options: [
+      "Yalnızca bütçeyi azaltmak için",
+      "Sadece daha fazla insan kaynağı kullanmak için",
+      "Kalite ve performansı olumlu etkileyen yenilikçi ve rekabetçi özelliklerin gelişmesini sağladığı için",
+      "Paydaş sayısını azaltmak için",
+      "Proje kapsamını daraltmak için"
+    ],
+    answer: 2
+  },
+  {
+    id: 66,
+    text: "Kurumsal kriterlere göre önceliklendirme yaparak proje seçmek için kullanılan kavram aşağıdakilerden hangisidir?",
+    options: ["Proje fikri oluşturma","Proje beratı","İş paketi oluşturma","Program yönetimi","Paydaş listesi"],
+    answer: 0
+  },
+  {
+    id: 67,
+    text: "Seçim süreçlerinden geçen her proje için hazırlanması gereken temel doküman aşağıdakilerden hangisidir?",
+    options: ["Proje paydaş listesi","Proje planı","Proje beratı","Proje raporu","Proje iş programı"],
+    answer: 2
+  },
+  {
+    id: 68,
+    text: "Projenin ana aşamaları belirlenirken hangi unsur özellikle göz önünde bulundurulur?",
+    options: ["Ürünün gelişimi","Maliyet","Süre","İnsan kaynağı","Risk"],
+    answer: 0
+  },
+  {
+    id: 69,
+    text: "Aşağıdakilerden hangisi proje yönetimi bilgi alanlarından biri DEĞİLDİR?",
+    options: [
+      "Kapsam yönetimi",
+      "Süre yönetimi",
+      "Maliyet yönetimi",
+      "Kalite yönetimi",
+      "Finansal denetim yönetimi"
+    ],
+    answer: 4
+  },
+  {
+    id: 70,
+    text: "Program ile portföy arasındaki ilişkiyi en doğru şekilde ifade eden seçenek hangisidir?",
+    options: [
+      "Program portföyü kapsar",
+      "Portföy programı kapsar",
+      "Her ikisi aynı anlamdadır",
+      "Program yalnızca operasyonel işleri kapsar",
+      "Portföy yalnızca bir projeyi kapsar"
+    ],
+    answer: 1
+  },
+  {
+    id: 71,
+    text: "Proje kapsamının teknik veya başka gerekçeler olmadan kontrol dışı süreç boyunca genişletilmesine ne ad verilir?",
+    options: ["Kapsam yönetimi","Kapsam daralması","Kapsam yayılımı","Kapsam raporu","Kapsam sınırı"],
+    answer: 2
+  },
+  {
+    id: 72,
+    text: "Planlanan eylemlerin takvime yerleştirilmiş haline ne ad verilir?",
+    options: ["İş programı","Gantt şeması","Proje beratı","Faaliyet raporu","Kaynak planı"],
+    answer: 0
+  },
+  {
+    id: 73,
+    text: "Proje çıktılarının olumsuz ve olumlu (pozitif riskler) etkilenmesine sebep olabilecek tüm olaylara ne ad verilir?",
+    options: ["Problem","Fırsat","Risk","Kısıt","Sapma"],
+    answer: 2
+  },
+  {
+    id: 74,
+    text: "Pareto (80/20) prensibine göre aşağıdakilerden hangisi doğrudur?",
+    options: [
+      "Sebebin %80’i etkinin %20’sini oluşturur",
+      "Sebebin %20’si etkinin %80’ini oluşturur",
+      "Sebep ve etki eşittir",
+      "Etkinin %100’ü sebeplerin %10’undan gelir",
+      "Hiçbiri"
+    ],
+    answer: 1
+  },
+  {
+    id: 75,
+    text: "Pareto prensibi risk yönetiminde nasıl kullanılabilir?",
+    options: [
+      "Risklerin tümünü eşit öncelikte ele alarak",
+      "Risklerin %20’sine odaklanarak %80’ini azaltabilecek önlemleri almak",
+      "Yalnızca maliyet risklerini ele almak",
+      "Yalnızca zaman risklerini ele almak",
+      "Yalnızca kalite risklerini ele almak"
+    ],
+    answer: 1
+  },
+  {
+    id: 76,
+    text: "Projeyi oluşturan ana iş paketleri ve faaliyetlerin listelendiği, ara ve sonuç ürünleri tanımlayan yapıya ne ad verilir?",
+    options: [
+      "Proje planı",
+      "Work Breakdown Structure (İş Kırılım Yapısı)",
+      "Proje beratı",
+      "Paydaş listesi",
+      "Kaynak planı"
+    ],
+    answer: 1
+  },
+  {
+    id: 77,
+    text: "Projenin planlaması aşağıdakilerden hangisinin cevabını vermeyi amaçlar?",
+    options: [
+      "Kim? Ne zaman? Nerede? Kiminle? Neyle? Nasıl?",
+      "Sadece bütçe planlaması",
+      "Yalnızca süre planlaması",
+      "Yalnızca kalite planlaması",
+      "Yalnızca risk planlaması"
+    ],
+    answer: 0
+  },
+  {
+    id: 78,
+    text: "İş paketlerinin maliyetleri hangi yöntemle belirlenir?",
+    options: [
+      "Sadece yönetici kararıyla",
+      "Kullanılacak kaynakların analiz edilmesiyle",
+      "Yalnızca piyasa araştırmasıyla",
+      "Yalnızca geçmiş projelere bakılarak",
+      "Sadece dış kaynak teklifleriyle"
+    ],
+    answer: 1
+  },
+  {
+    id: 79,
+    text: "İş paketlerinin süreleri nasıl tahmin edilir?",
+    options: [
+      "Yalnızca bütçeye göre",
+      "Kullanılacak kaynak miktarı, nitelik ve iş programına göre",
+      "Yalnızca yöneticinin deneyimine göre",
+      "Sadece piyasa araştırmasına göre",
+      "Rastgele belirlenir"
+    ],
+    answer: 1
+  },
+  {
+    id: 80,
+    text: "Planlanan sürede tamamlanma olasılığını artırmak için hangi yöntem uygulanır?",
+    options: [
+      "Ek bütçe oluşturmak",
+      "Tampon süre eklemek",
+      "Kaynak azaltmak",
+      "Paydaş sayısını azaltmak",
+      "Kapsamı daraltmak"
+    ],
+    answer: 1
+  },
+  {
+    id: 81,
+    text: "Planlanan maliyet içinde projeyi tamamlamak için öngörülmeyen giderlere yönelik ek paylara ne ad verilir?",
+    options: ["Yedek akçe","İhtiyat akçesi","Yönetim rezervi","Risk primi","Hepsi"],
+    answer: 4
+  },
+  {
+    id: 82,
+    text: "Proje sponsorunun en temel sorumluluğu aşağıdakilerden hangisidir?",
+    options: [
+      "Projenin günlük operasyonunu yürütmek",
+      "Proje fikrini desteklemek ve kaynakların kullanımını onaylamak",
+      "Tüm iş paketlerini detaylı tanımlamak",
+      "Tüm testleri yürütmek",
+      "Sadece risk analizini yapmak"
+    ],
+    answer: 1
+  }
+
+
+];
+
+    // ====== STATE ======
+    let idx = 0;
+    const answers = new Array(QUESTIONS.length).fill(null);
+    let submitted = false;
+
+    // ====== ELEMENTS ======
+    const screen = document.getElementById('screen');
+    const result = document.getElementById('result');
+    const btnPrev = document.getElementById('prev');
+    const btnNext = document.getElementById('next');
+    const btnSubmit = document.getElementById('submit');
+    const bar = document.getElementById('bar');
+    const timerEl = document.getElementById('timer');
+    const ansCountEl = document.getElementById('ansCount');
+    const totalQEl = document.getElementById('totalQ');
+    const passThEl = document.getElementById('passThreshold');
+    const mapPanel = document.getElementById('mapPanel');
+    const rangeBar  = document.getElementById('rangeBar');
+    const qnumsEl   = document.getElementById('qnums');
+    const btnToggleMap = document.getElementById('toggleMap');
+
+    totalQEl.textContent = QUESTIONS.length;
+    passThEl.textContent = PASS_THRESHOLD;
+
+    // ====== RENDERERS ======
+    function renderQuestion(i){
+      const q = QUESTIONS[i];
+      const chosen = answers[i];
+      const header = `<div class="row"><strong>Soru ${i+1} / ${QUESTIONS.length}</strong></div>`;
+      const prompt = q.prompt ? `<div class="row muted">${q.prompt.replaceAll('\n','<br>')}</div>` : "";
+      const opts = q.options.map((opt,oi)=>`
+        <label>
+          <input type="radio" name="opt" value="${oi}" ${chosen===oi?"checked":""}/> ${String.fromCharCode(65+oi)}) ${opt}
+        </label>`).join("");
+      screen.innerHTML = header + `<div class="row">${q.text}</div>` + prompt + `<div class="row opts">${opts}</div>`;
+      updateNavButtons();
+      updateProgress();
+      updateMap();
+    }
+
+    function updateNavButtons(){
+      btnPrev.disabled = idx===0 || submitted;
+      btnNext.disabled = idx===QUESTIONS.length-1 || submitted;
+      btnSubmit.disabled = submitted;
+    }
+
+    function updateProgress(){
+      const answered = answers.filter(a=>a!==null).length;
+      ansCountEl.textContent = answered;
+      const pct = Math.round(100*answered/QUESTIONS.length);
+      bar.style.width = pct + "%";
+      bar.style.background = pct===100 ? "#16a34a" : "#60a5fa";
+      updateMap();
+    }
+
+    // ====== MAP ======
+    function buildRanges(){
+      rangeBar.innerHTML = '';
+      const groups = Math.ceil(QUESTIONS.length / RANGE_SIZE);
+      for(let g=0; g<groups; g++){
+        const start = g*RANGE_SIZE + 1;
+        const end   = Math.min((g+1)*RANGE_SIZE, QUESTIONS.length);
+        const chip = document.createElement('button');
+        chip.className = 'range';
+        chip.dataset.start = start-1;
+        chip.dataset.end   = end-1;
+        chip.textContent = `${start}–${end}`;
+        chip.onclick = ()=>{
+          [...rangeBar.children].forEach(c=>c.classList.remove('active'));
+          chip.classList.add('active');
+          renderQnums(+chip.dataset.start, +chip.dataset.end);
+        };
+        rangeBar.appendChild(chip);
+      }
+      rangeBar.firstChild && rangeBar.firstChild.click();
+    }
+
+    function renderQnums(startIdx, endIdx){
+      qnumsEl.innerHTML = '';
+      for(let i=startIdx;i<=endIdx;i++){
+        const b = document.createElement('button');
+        b.className = 'qnum ' + (i===idx ? 'current' : (answers[i]==null ? 'blank' : 'answered'));
+        b.textContent = (i+1);
+        b.onclick = ()=>{ if(!submitted){ idx = i; renderQuestion(idx); } };
+        qnumsEl.appendChild(b);
+      }
+    }
+
+    function updateMap(){
+      const active = rangeBar.querySelector('.active');
+      if(active) renderQnums(+active.dataset.start, +active.dataset.end);
+    }
+
+    // ====== EVENTS ======
+    screen.addEventListener('change', e=>{
+      if(submitted) return;
+      if(e.target.name==='opt'){
+        answers[idx] = Number(e.target.value);
+        updateProgress();
+      }
+    });
+
+    btnPrev.onclick = ()=>{ if(submitted) return; idx=Math.max(0,idx-1); renderQuestion(idx); };
+    btnNext.onclick = ()=>{ if(submitted) return; idx=Math.min(QUESTIONS.length-1,idx+1); renderQuestion(idx); };
+    btnSubmit.onclick = ()=> trySubmit(false);
+    btnToggleMap.onclick = ()=>{ mapPanel.classList.toggle('show'); };
+
+    // ====== SCORING & SUBMIT ======
+    function trySubmit(fromTimer){
+      if(submitted) return;
+      if(!fromTimer){
+        const unanswered = answers.findIndex(a=>a===null);
+        if(unanswered!==-1){
+          idx = unanswered; renderQuestion(idx);
+          alert("Tüm soruları işaretleyin.");
+          return;
+        }
+      }
+      submitted = true;
+      btnPrev.disabled = true; btnNext.disabled = true; btnSubmit.disabled = true;
+
+      const correct = QUESTIONS.reduce((s,q,i)=>s+(answers[i]===q.answer?1:0),0);
+      const blanks  = answers.filter(a=>a===null).length;
+      const wrong   = QUESTIONS.length - correct - blanks;
+      const passed  = correct >= PASS_THRESHOLD;
+      const percent = ((100*correct)/QUESTIONS.length).toFixed(1);
+
+      const review = QUESTIONS.map((q,i)=>{
+        const chosen = answers[i];
+        const ok = chosen===q.answer;
+        const your = chosen!=null ? `${String.fromCharCode(65+chosen)}) ${q.options[chosen]}` : "—";
+        const corr = `${String.fromCharCode(65+q.answer)}) ${q.options[q.answer]}`;
+        return `
+          <div class="card ${ok?"right":"wrong"}">
+            <div><strong>Soru ${i+1}:</strong> ${q.text}</div>
+            ${q.prompt?`<div class="kps muted">${q.prompt.replaceAll('\n','<br>')}</div>`:""}
+            <div class="row"><strong>Senin cevabın:</strong> ${your}</div>
+            <div class="row"><strong>Doğru cevap:</strong> ${corr}</div>
+          </div>`;
+      }).join("");
+
+      result.innerHTML = `
+        <h2>Sonuç</h2>
+        <p>Doğru: <strong>${correct}</strong> | Yanlış: <strong>${wrong}</strong> | Boş: <strong>${blanks}</strong> | Yüzde: <strong>%${percent}</strong></p>
+        <p class="${passed?'pass':'fail'}"><strong>${passed ? "Geçti" : "Kaldı"}</strong> (Eşik: ${PASS_THRESHOLD} doğru)</p>
+        ${review}
+        <div class="muted kps">Not: Doğru/yanlışlar bu cihazda görüntülenir.</div>`;
+      result.classList.remove('hidden');
+      window.scrollTo({top: result.offsetTop, behavior: "smooth"});
+      clearInterval(timerId);
+    }
+
+    // ====== TIMER ======
+    let remaining = DURATION_MIN * 60;
+    function fmt(sec){
+      const m = Math.floor(sec/60).toString().padStart(2,'0');
+      const s = Math.floor(sec%60).toString().padStart(2,'0');
+      return `${m}:${s}`;
+    }
+    timerEl.textContent = fmt(remaining);
+    const timerId = setInterval(()=>{
+      remaining--;
+      timerEl.textContent = fmt(remaining);
+      if(remaining<=0){
+        timerEl.textContent = "00:00";
+        trySubmit(true);
+      }
+    },1000);
+
+    // ====== START ======
+    buildRanges();
+    renderQuestion(idx);
+  </script>
+</body>
+</html>
