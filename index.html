@@ -54,7 +54,7 @@
   <h1>Uzmanlık Sınavı Simülasyonu</h1>
 
   <div class="header">
-    <div class="badge">Süre: <strong id="timer">120:00</strong></div>
+    <div class="badge">Süre: <strong id="timer">300:00</strong></div>
     <div class="badge">Yanıtlanan: <strong id="ansCount">0</strong>/<span id="totalQ">0</span></div>
     <div class="badge">Eşik: <strong id="passThreshold">70</strong> doğru</div>
     <div class="spacer"></div>
@@ -90,8 +90,8 @@
 
 <script>
 /* ================= SETTINGS ================= */
-const DURATION_MIN = 120;     // dakika
-const PASS_THRESHOLD = 70;    // geçiş eşiği
+const DURATION_MIN = 300;     // dakika
+const PASS_THRESHOLD = 175;    // geçiş eşiği
 
 /* ================= QUESTIONS =================
   sorularınızı dilerseniz bu dizinin başına ekleyebilirsiniz.
@@ -365,7 +365,7 @@ const QUESTIONS = [
       "Varış limanındaki boşaltma masraflarını ödemek",
       "Yükleme limanındaki vergileri ödemek"
     ],
-    answer: 4
+    answer: 3
   },
   {
     id: 24,
@@ -1837,7 +1837,1001 @@ const QUESTIONS = [
       "I, II, III ve IV"
     ],
     answer:1
-  }
+  },
+{
+  id: 151,
+  text: "Aşağıdakilerden hangisi hak ehliyeti ile ilgili yanlış bir ifadedir?",
+  options: [
+    "Gerçek kişiler sağ ve tam doğmakla kişilik kazanır.",
+    "Küçük adına açılan hesaplardan doğan faiz geliri çocuğa aittir.",
+    "Gelir vergisinin mükellefi, faiz gelirini elde eden çocuktur.",
+    "Gerek bankalar gerekse çocuğun yasal temsilcisi vergi sorumlusu olabilir.",
+    "Hak ehliyeti yalnızca reşit olmakla başlar, doğumla başlamaz."
+  ],
+  correct: 4
+},
+{
+  id: 152,
+  text: "Fiil ehliyeti ile ilgili verilen bilgilerden hangisi yanlıştır?",
+  options: [
+    "Evli kişilerin fiil ehliyeti bazı işlemler açısından sınırlıdır.",
+    "Evli kişiler eşlerinden izin alınmaksızın kefil olamaz (yasal istisnalar vardır).",
+    "Aile konutu üzerine ipotek sınırlaması oluşturan kişi eşinden izin alınmaksızın ipotek verirse mahkeme ipoteği iptal eder.",
+    "Kısıtlılık kararını Sulh Hukuk Mahkemesi verir.",
+    "Fiil ehliyeti, her birey için yaş ve ayırt etme gücüne bakılmaksızın kendiliğinden kazanılır."
+  ],
+  correct: 4
+},
+{
+  id: 153,
+  text: "Kişiliğin sona ermesi halinde ölenin borçları ve malvarlığı mirasçılarına kalır. Mirasçılar miras paylarına göre paylarını alırlarken, bu kapsamındaki borçlardan da müteselsil sorumlu olurlar. Yukarıdaki ifadelerde yer alan ve gerçek kişiliğin sona ermesinin sonucu olarak miras bırakanın malvarlığı ve borçlarını ifade eden kavrama ne denir?",
+  options: [
+    "Tereke",
+    "Miras",
+    "Muris",
+    "Emtia",
+    "Maaş"
+  ],
+  correct: 0
+},
+{
+  id:154,
+  text:"Aşağıdaki öncüllerden hangileri mirasın reddi ve iptal davası ile ilgili doğru ifadelerdir?",
+  prompt:"I. Mirasın reddi için mirasçıya tanınan süre 3 aydır.\nII. Alacaklının haklarını önlemek amacıyla yapılan miras reddine karşı alacaklı, ret kararının iptali için ayrı dava açabilir.\nIII. Ret tarihinden itibaren 6 ay iptal davası açma süresidir.\nIV. Borçlu mirasçı, terekedeki malların haczinden kaçınmak için mirası reddedebilir.",
+  options:[
+    "Yalnız I",
+    "I ve II",
+    "I, II ve III",
+    "Yalnız IV",
+    "I, II, III ve IV"
+  ],
+  answer:2
+},
+{
+  id:155,
+  text:"Aşağıdaki öncüllerden hangileri mirasın reddi türlerini doğru şekilde ifade etmektedir?",
+  prompt:"I. Mirasçı borçlu, terekede olan mal ona gelmesin haczedilmesi diye mirası red etti, miras diğer mirasçılara geçti.\nII. Muris borçludur, ama borçtan mirasçı(kendisi) nemalanmıştır.",
+  options:[
+    "I: Geçiş amacıyla red, II: Kaçış amacıyla red",
+    "I: Kaçış amacıyla red, II: Geçiş amacıyla red",
+    "I: Yasal red, II: İhtiyari red",
+    "I: Kesin red, II: Şarta bağlı red",
+    "I: Sulh red, II: Ticari red"
+  ],
+  answer:0
+},
+{
+  id:156,
+  text:"Aşağıdakilerden hangisi mirasçılık belgesi ile ilgili yanlış bir ifadedir?",
+  options:[
+    "Mirasçılık belgesi Sulh Hukuk Mahkemesinden veya Noterlikten alınabilir.",
+    "Sulh Hukuk Mahkemesinden alınan belgede ölen kişinin kimliği, vatandaşlık numarası, mirasçıların kimlikleri ve miras pay oranları bulunur.",
+    "Sulh Hukuk Mahkemesinden alınan belgede hangi yer mahkemesinden alındığı, esas numarası ve karar numarasının kontrol edilmesi gerekir.",
+    "Noterlikten alınan belgede yevmiye numarası ve tarihi esas alınır.",
+    "Noterlikten alınan belgede mirasçıların pay oranları yazılmak zorunda değildir"
+  ],
+  answer:4
+},
+{
+  id:157,
+  text:"Tanımı verilen 'İki tarafın karşılıklı birbirlerinden olan alacaklarını ayrı ayrı istemekten vazgeçerek bir cetvel haline getirmeleri ve dönem sonundaki borcu istemelerine dair hesap anlaşmasıdır.' ifadesi aşağıdakilerden hangisini ifade eder?",
+  options:[
+    "Cari Hesap",
+    "Dönemsel Hesap",
+    "Nostro Hesap",
+    "Vostro Hesap",
+    "Yevmiye Cetveli"
+  ],
+  answer:0
+},
+{
+  id:158,
+  text:"Genel kural olarak borçlu cari hesap uygulamalarında 4 dönem sonunda faiz ödemesi yapılır. Senede bir anapara borcu, faiz ve diğer ödemeleri yapılır. Aşağıdaki tarihlerden hangisi bu dönemlerden değildir?",
+  options:[
+    "29 Şubat",
+    "31 Mart",
+    "30 Haziran",
+    "30 Eylül",
+    "31 Aralık"
+  ],
+  answer:0
+},
+{
+  id:159,
+  text:"İcra ve İflas Kanunu 89. madde kapsamında haciz ihbarnameleri ile ilgili aşağıdaki ifadelerden hangisi yanlıştır?",
+  options:[
+    "Haciz ihbarnameleri icra müdürlüklerinden bankaya veya şubeye gelebilir.",
+    "Cevap süresi yedi gündür, haciz ihbarnamesine cevap verilirken hesap özeti gönderilmez ve hesaba gelecek paralara bloke konulmaz.",
+    "Birinci haciz ihbarnamesine cevap verilmezse ikinci gelmez.",
+    "İkinci haciz ihbarnamesine cevap verilmelidir, aksi halde banka borçlusu olmadığı bir borcu ödemek zorunda kalabilir.",
+    "Genel olarak haciz ihbarnameleri 89/1 ve 89/2 olarak adlandırılır."
+  ],
+  answer:2
+},
+{
+  id:160,
+  text:"Aşağıdaki eşleştirmelerden hangisi doğrudur?",
+  prompt:"I.Hesap sahiplerinden tamamı hazır bulunmadıkça hesaptan para çekilemez, ancak bilgi ve belgeler tek tek başvuruda verilir.\nII. Hesap sahiplerinden herhangi biri (veya yetkili kılınan) para çekebilir, bilgi ve belgeler tüm hesap sahiplerine verilir.",
+  options:[
+    "I: Münferit Hesap, II: Müşterek Hesap",
+    "I: Müşterek Hesap, II: Münferit Hesap",
+    "I: Cari Hesap, II: Vadesiz Hesap",
+    "I: Vadeli Hesap, II: Cari Hesap",
+    "I: Emeklilik Hesabı, II: Yatırım Hesabı"
+  ],
+  answer:1
+},
+{
+  id:161,
+  text:"Bankacılık sözleşmeleri ile ilgili verilenlerden hangisi yanlıştır?",
+  options:[
+    "Bankacılıkta önem arz eden sözleşmeler; genel kredi sözleşmeleri, bireysel kredi sözleşmeleri, bankacılık hizmet sözleşmeleridir.",
+    "Banka sözleşmeleri hukuken genel işlem koşuludur.",
+    "Kredi sözleşmelerinin asıllarının imzalanmasından önce müşteri tarafından sözleşme öncesi bilgi formu imzalanır.",
+    "Tüketici Haklarının Korunması Hakkında Yasa gereği makul süre önce sözleşme öncesi bilgi formu müşteri tarafından imzalanmalıdır.",
+    "Bankacılık Hizmet Sözleşmeleri taraflarca serbestçe belirlenebilir."
+  ],
+  answer:4
+},
+{
+  id:162,
+  text:"Serbesti kavramı ile ilgili verilenlerden hangisi yanlıştır?",
+  options:[
+    "Şekil açısından temel hukuki ilke serbesti, şekil serbestisidir.",
+    "Taraflar yasada özel bir emir olmadıkça diledikleri şekilde hukuki işlem yapabilir.",
+    "Sözlü şekilde yapılabilir.",
+    "Yazılı şekilde veya nitelikli yazılı şekilde yapılabilir.",
+    "Gayriresmi şekilde (düzenleme veya onay) yapılabilir."
+  ],
+  answer:4
+},
+{
+  id:163,
+  text:"İmza atamayan kişiler parmak izi ile imza koyabilirler. Bunun için aşağıdaki işlemlerden hangileri yapılmalıdır?",
+  prompt:"I. Noterden parmak izi alınmalıdır.\nII. Noterden alınan mühür şahadetnamesi incelenmelidir.\nIII. Parmak izi ve mühür şahadetnamesinin teyidi yapılmalı ve bir örneği alınmalıdır.\nIV. Ayrıca bu işlemde okuma yazma bilen tanık alınmalıdır.",
+  options:[
+    "Yalnız I",
+    "I ve II",
+    "II ve III",
+    "I, II ve IV",
+    "I, II, III ve IV"
+  ],
+  answer:4
+},
+{
+  id:164,
+  text:"Elektronik imza ile ilgili aşağıdaki ifadelerden hangileri doğrudur?",
+  prompt:"I. Elektronik imza parola veya şifre aracılığıyla internet ortamında ulaştırılır ve el yazısı imza gibi geçerlidir.\nII. Banka teminat mektupları elektronik imza ile imzalanabilir ve düzenlenebilir.\nIII. Elektronik imza ile kefalet, ipotek, rehin gibi işlemler yapılabilir.\nIV. Kambiyo senedi elektronik imza ile imzalanabilir, ciro ve aval yapılabilir.\nV. Mevduat, menkul kıymet rehni gibi el yazısı imza gerektiren işlemler elektronik imza ile yapılamaz.",
+  options:[
+    "I ve II",
+    "I, II ve V",
+    "III ve IV",
+    "II, III ve V",
+    "I, II, IV ve V"
+  ],
+  answer:1
+},
+{
+  id:165,
+  text:"Tüzel kişi adına imza ile ilgili aşağıdaki ifadelerden hangileri doğrudur?",
+  prompt:"I. Tüzel kişiler özellikle ticaret şirketleri adına ve hesabına, ticaret siciline kayıtlı temsilciler aracılığıyla imza atabilir.\nII. Ticaret siciline kayıtlı yetkililerin yetkilerini ispat için noterlikten imza sirküleri düzenlenmesi gerekir.\nIII. Bankalara sunulan imza sirkülerinin ticaret sicil kayıtlarına uygun olması önemlidir.\nIV. Şirket kaşesinde şirketin unvanı, bağlı olduğu vergi dairesi, vergi kimlik numarası, kayıtlı olduğu ticaret sicili, ticaret sicil numarası ve adresi bulunur.",
+  options:[
+    "I ve II",
+    "II ve IV",
+    "I, II ve III",
+    "I, III ve IV",
+    "I, II, III ve IV"
+  ],
+  answer:4
+},
+{
+  id:166,
+  text:"Şirket kaşelerinde aşağıdakilerden hangilerinin doğruluğu kontrol edilmelidir?",
+  prompt:"I. Şirketin adresi\nII. Kayıtlı olduğu ticaret sicili\nIII. Şirketin telefon numarası\nIV. Vergi dairesi\nV. Vergi kimlik numarası\nVI. MERSİS numarası\nVII. Ticaret sicil numarası",
+  options:[
+    "I, II, III ve IV",
+    "II, III, IV ve V",
+    "I, II, IV, V, VI ve VII",
+    "I, III, V ve VI",
+    "I, II, III, IV, V, VI ve VII"
+  ],
+  answer:2
+},
+{
+  id:167,
+  text:"A ticaret şirketi, B ticaret şirketi üzerinde doğrudan veya dolaylı olarak oy haklarının çoğunluğuna sahip olduğunda veya yönetim organında karar alabilecek çoğunluğu belirleyebildiğinde, ya da bir sözleşme yoluyla hakimiyet sağladığında bu şirketler arasındaki ilişki nasıl tanımlanır?",
+  options:[
+    "A: Hakim Şirket, B: Bağlı Şirket",
+    "A: Bağlı Şirket, B: Hakim Şirket",
+    "A: Ana Ortak, B: Yan Ortak",
+    "A: Kontrol Şirketi, B: İştirak Şirketi",
+    "A: Yönetici Şirket, B: Ortaklık Şirketi"
+  ],
+  answer:0
+},
+{
+  id:168,
+  text:"Aşağıdaki dava türleri ile açıklamaları doğru şekilde hangi seçenekte eşleştirilmiştir?",
+  prompt:"I. Eda Davası\nII. Tespit Davası\nIII. Menfi Tespit Davası\nIV. İstirdat Davası\nV. İstihkak Davası\n\n1. Bir hakkın yerine getirilmesi için açılan dava\n2. Bir hakkın veya durumun hukuken var olup olmadığının belirlenmesi için açılan dava\n3. Borçlunun borçlu olmadığını, borcu ödemeden önce tespit ettirmek amacıyla açtığı dava\n4. Borcun icra-haciz baskısından kurtulmak amacıyla borç ödendikten sonra geri alınması için açılan dava\n5. Borçluya ait sanılarak haczedilen malın aslında borçluya ait olmadığının tespiti için açılan dava",
+  options:[
+    "I-1, II-2, III-3, IV-4, V-5",
+    "I-2, II-1, III-3, IV-4, V-5",
+    "I-1, II-3, III-2, IV-5, V-4",
+    "I-4, II-2, III-1, IV-3, V-5",
+    "I-5, II-4, III-3, IV-2, V-1"
+  ],
+  answer:0
+},
+{
+  id:169,
+  text:"Aşağıdaki kavramlar ile açıklamaları doğru şekilde hangi seçenekte eşleştirilmiştir?",
+  prompt:"I. İtiraz\nII. Def’i\nIII. Şikayet\n\n1. Borcun olmadığına dair beyan\n2. Borcun varlığını kabul ile birlikte ödeme koşullarının henüz doğmadığına ilişkin savunma (ör. vadeden önce talebe karşı ileri sürülen)\n3. İcra müdürlüğünün hatalı işlemlerine karşı başvurulan yol",
+  options:[
+    "I-1, II-2, III-3",
+    "I-2, II-1, III-3",
+    "I-3, II-2, III-1",
+    "I-1, II-3, III-2",
+    "I-2, II-3, III-1"
+  ],
+  answer:0
+},
+{
+  id:170,
+  text:"Aşağıdaki kavramlar ile açıklamaları doğru şekilde hangi seçenekte eşleştirilmiştir?",
+  prompt:"I. Danışıklı işlemdir, üçüncü kişileri yanıltmak amacıyla yapılır, zarar görenlerce dava yoluyla iptal ettirilebilir.\nII. Borçlunun icra takibinden kaçırmak amacıyla malvarlığını sahte işlemlerle başkalarına devretmesi halinde bu işlemlerin iptali ve haciz uygulanması amacıyla açılan davadır. İcra ve İflas Kanunu’nda düzenlenir.",
+  options:[
+    "Muvazaa - Edimin İptali Davası",
+    "Tasarrufun İptali Davası - İstihkak Davası",
+    "Gabin - İstirdat Davası",
+    "Muvazaa - Tasarrufun İptali Davası",
+    "Muvazaa - Menfi Tespit Davası"
+  ],
+  answer:3
+},
+{
+  id:171,
+  text:"I. Önalım hakkıdır (hisseli taşınmazlarda)\nII. Geri alım hakkıdır\nIII. Alım hakkıdır\nIV. Taşınmazda (sadece) oturma-barınma hakkıdır\nV. Taşınmazın oturma, kiraya verme ve diğer haklarından faydalanma hakkıdır\n\nYukarıda verilen tanımların karşılıkları hangi seçenekte doğru olarak verilmiştir?",
+  options:[
+    "I: Şufa, II: Vefa, III: İştira, IV: Sükna, V: İntifa",
+    "I: Vefa, II: Şufa, III: İştira, IV: İntifa, V: Sükna",
+    "I: İştira, II: Şufa, III: Vefa, IV: Sükna, V: İntifa",
+    "I: Şufa, II: İştira, III: Vefa, IV: İntifa, V: Sükna",
+    "I: İntifa, II: Vefa, III: Şufa, IV: Sükna, V: İştira"
+  ],
+  answer:0
+},
+{
+  id:172,
+  text:"“İpotek: Doğmuş ve doğacak asaleten kefaleten her türlü alacağı teminat altına alan, tutarı baştan belirlenen ipotek tutarı kadar olan ve sahibine tahsilat hakkı veren teminattır.”\nYukarıda tanımı verilen ipotek için; ipoteğin bir türünü barındırmayan seçenek hangi şıkta doğru olarak verilmiştir?",
+  options:[
+    "Üstsınır",
+    "Maksimal",
+    "Üstlimit",
+    "Üstdeğer",
+    "Sınır"
+  ],
+  answer:3
+},
+{
+  id:173,
+  text:"Aşağıdakilerden hangisi kefaletin şekil şartlarından değildir?",
+  options:[
+    "Kefil kendi el yazısıyla; kefalet tutarını, kefalet para cinsini, kefalet tarihini ve imzasını oluşturmalıdır.",
+    "İmza atamayan kişiler kefil olamazlar.",
+    "Parmak basmak mühür beyannamesi tanık uygulaması ile kefil alınmaz.",
+    "Yasal zorunluluk gereği eş izni alınması gerekiyorsa; eşin izin belgesinin tarihi kefalet tarihinden önce veya en geç aynı tarihte olabilir, aksi halde kefalet geçersizdir.",
+    "Kefalet sadece kefalet senedi ile verilebilir."
+  ],
+  answer:4
+},
+{
+  id:174,
+  text:"Kısıtlama kararını hangi mahkeme alır?",
+  options:[
+    "Asliye Ticaret Mahkemesi",
+    "İcra Mahkemesi",
+    "Sulh Hukuk Mahkemesi",
+    "Yargıtay",
+    "Ağır Ceza Mahkemesi"
+  ],
+  answer:2
+},
+{
+  id:175,
+  text:"Aşağıda verilen ifadelerden hangisi poliçenin şekil şartları için hatalıdır?",
+  options:[
+    "Senet metninde 'poliçe' kelimesini, senet Türkçe’den başka bir dille yazılmışsa, o dilde poliçe karşılığı olarak kullanılan kelimeyi içermelidir.",
+    "Belirli bir bedelin ödenmesi hususunda kayıtsız ve şartsız havaleyi ve ödeyecek olan kişinin, muhatabın adını içermelidir.",
+    "Vadeyi, düzenleme yerini ve ödeme yerini içermek zorundadır.",
+    "Düzenleyenin imzasını içermelidir.",
+    "Kime veya kimin emrine ödenecek ise onun adını içermelidir."
+  ],
+  answer:2
+},
+{
+  id:176,
+  text:"Aşağıda verilen ifadelerden hangisi bononun şekil şartları için hatalıdır?",
+  options:[
+    "Lehdarın kim olduğunu (senedin önyüzünde alacaklının kim olduğu belli edilmelidir) içermelidir.",
+    "Tutar (ve kanunda açıkça yazmasa da para cinsi).",
+    "Kayıtsız şartsız senetten doğan borcu ödeme taahhüdü (borçlu tarafından beyan edilecek).",
+    "El yazısı imza (borçlu tarafından dercedilecek) içermelidir.",
+    "Vadesini içermek zorundadır."
+  ],
+  answer:4
+},
+{
+  id:177,
+  text:"Çek: Senet metninde 'çek' kelimesini ve eğer senet Türkçe’den başka bir dille yazılmış ise o dilde 'çek' karşılığı olarak kullanılan kelimeyi ifade eder. Kayıtsız ve şartsız belirli bir bedelin ödenmesi için havaledir. Ödeyecek kişinin 'muhatabın' ticaret unvanını, ödeme yerini, düzenlenme tarihini ve yerini, düzenleyenin imzasını, banka tarafından verilen seri numarasını ve karekodu içerir.\n\nYukarıda çek tanımı ve barındırması gereken özelliklere değinilmiştir. Çek Yasasına göre 2025 yılı için sayfa başına banka garanti sorumluluğu tutarı dikkate alındığında, sırasıyla 5000 TL, 12800 TL ve 11750 TL tutarındaki 3 adet karşılıksız çek için bankanın ödemekle yükümlü olduğu tutarlar aşağıdakilerden hangisinde doğru olarak verilmiştir?",
+  options:[
+    "5000 - 12800 - 11750",
+    "12650 - 12650 - 12650",
+    "5000 - 12650 - 11750",
+    "11750 - 5000 - 12650",
+    "11750 - 12650 - 5000"
+  ],
+  answer:2
+},
+{
+  id:178,
+  text:"Çekle ilgili aşağıdaki ifadelerden hangileri doğrudur?",
+  prompt:"I. Çekte açıklık yoksa, muhatabın ticaret unvanı yanında gösterilen yer ödeme yeri sayılır.\nII. Muhatabın ticaret unvanı yanında birden fazla yer gösterildiği takdirde, çek ilk gösterilen yerde ödenir.\nIII. Böyle bir açıklık ve başka bir kayıt da yoksa, çek muhatabın merkezinin bulunduğu yerde ödenir.\nIV. Düzenlenme yeri gösterilmemiş olan çek, düzenleyenin adı yanında yazılı olan yerde düzenlenmiş sayılır.\nV. Yabancı banka tarafından bastırılan çeklerde, banka tarafından verilen seri numarası ve/veya karekodun bulunmaması senedin çek olarak geçerliliğini etkilemez.",
+  options:[
+    "I, II ve III",
+    "II, III ve IV",
+    "I, II, IV ve V",
+    "I, III, IV ve V",
+    "I, II, III, IV ve V"
+  ],
+  answer:4
+},
+{
+  id:179,
+  text:"Çek ve karekod kapsamı kontrol noktaları ile ilgili aşağıdaki bilgilerden hangileri mevcut ve doğrudur?",
+  prompt:"I. Çek hesabı sahibinin adı, soyadı veya ticaret unvanı\nII. Çek hesabı sahibinin toplam banka sayısı\nIII. Çek hesabı sahibinin kişisel adres bilgileri\nIV. Son beş yılda 'karşılıksızdır' işlemi gören çeklerin adedi ve tutarı\nV. Çek hesabı sahibi hakkında çek hesabı açma yasağı bulunup bulunmadığı",
+  options:[
+    "I, II ve III",
+    "I, II ve IV",
+    "II, III ve V",
+    "I, II, IV ve V",
+    "I, III, IV ve V"
+  ],
+  answer:3
+},
+{
+  id:180,
+  text:"Aşağıdakilerden hangileri çek karekod kapsamında yer alır?",
+  prompt:"I. Düzenlenerek bankalara teslim edilen çeklerin adedi ve tutarı\nII. Son beş yıl içinde ibrazında ödenen çeklerin adedi ve tutarı\nIII. Çek hesabı sahibinin malvarlığı listesi\nIV. İbraz edilen ilk çekin ibraz tarihi\nV. İbrazında ödenen son çekin ibraz tarihi",
+  options:[
+    "I, II ve III",
+    "II, III ve IV",
+    "I, II ve IV",
+    "I, II, IV ve V",
+    "II, IV ve V"
+  ],
+  answer:3
+},
+{
+  id:181,
+  text:"Aşağıdakilerden hangileri Çek karekod kapsamında kontrol edilmesi gereken hususlardandır?",
+  prompt:"I. Son beş yılda 'karşılıksızdır' işlemi gören ve halen ödenmemiş çeklerin adedi ve tutarı\nII. Son beş yılda 'karşılıksızdır' işlemi gören ve sonradan ödenen çeklerin adedi ve tutarı\nIII. Son beş yılda 'karşılıksızdır' işlemi gören son çekin ibraz tarihi\nIV. Her bir çek yaprağı ile ilgili tedbir kaydı olup olmadığı\nV. Çek hesabı sahibi tacirse, iflasına karar verilip verilmediği ve tarihi",
+  options:[
+    "I ve II",
+    "II ve III",
+    "I, II ve IV",
+    "I, II, III ve V",
+    "I, II, III, IV ve V"
+  ],
+  answer:4
+},
+{
+  id:182,
+  text:"Malvarlığını eksiltmeye yönelik hileli tasarruflarda bulunan kişi, bu hileli tasarruflardan önce veya sonra iflasa karar verilmiş olması halinde üç yıldan sekiz yıla kadar hapis cezası ile cezalandırılır. Aşağıdakilerden hangisi bu suçun tespiti yapılırken aranmaz?",
+  options:[
+    "Alacaklıların alacaklarının teminatı mahiyetinde olan malların kaçırılması, gizlenmesi veya değerinin azalmasına neden olunması",
+    "Malvarlığını kaçırmaya yönelik tasarruflarının ortaya çıkmasını önlemek için ticari defter, kayıt veya belgelerin gizlenmesi veya yok edilmesi",
+    "Gerçekte bir alacak ve borç ilişkisi olmadığı halde, sanki böyle bir ilişki mevcutmuş gibi, borçların artmasına neden olacak şekilde belge düzenlenmesi",
+    "Gerçeğe aykırı muhasebe kayıtlarıyla veya sahte bilanço tanzimiyle aktifin olduğundan az gösterilmesi",
+    "Basiretli tacir gibi davranmayarak kusuru bulunan tüccarın muhasebe kayıtlarını hatalı girmesi"
+  ],
+  answer:4
+},
+{
+  id:183,
+  text:"\"Tacir olmanın gerekli kıldığı dikkat ve özenin gösterilmemesi dolayısıyla iflasa sebebiyet veren kişi, iflasa karar verilmiş olması halinde, iki aydan bir yıla kadar hapis cezası ile cezalandırılır.\" Kanun hükmüne istinaden burada işlenen suçun mahiyeti nedir?",
+  options:[
+    "Taksirli İflas",
+    "Hileli İflas",
+    "Kusurlu İflas",
+    "Kusursuz İflas",
+    "Kasıtlı İflas"
+  ],
+  answer:0
+},
+{
+  id:184,
+  text:"Miras hukukunda hak ve borçların bir bütün halinde murise devredilmesi ilkesine ne ad verilir?",
+  options:[
+    "Külli Halefiyet",
+    "Cüzi Halefiyet",
+    "Tereke Tasfiyesi",
+    "Miras Ortaklığı",
+    "Murisin Tasarruf Serbestisi"
+  ],
+  answer:0
+},
+
+{
+  id:185,
+  text:"Aşağıda verilen ve genel hukuk bilgileri için yanlış olan seçenek hangisidir?",
+  options:[
+    "Reddi miras emekli maaşını reddetmek anlamına gelmez.",
+    "Muris muvaazasında zaman aşımı yoktur.",
+    "Ölenin vadesiz hesabında para varsa Sulh Hukuk Mahkemesi kararıyla paraya el konabilir.",
+    "Yabancı bir kişiyle evlilik varsa vadesiz mevduattaki paraya el konma kararı noterce verilir.",
+    "Bankalar İcra Mahkemesine başvurarak miras belgesi çıkarabilir."
+  ],
+  answer:3
+},
+{
+  id:186,
+  text:"Aşağıda verilen ve genel hukuk bilgileri için yanlış olan seçenek hangisidir?",
+  options:[
+    "Kefalet, teminat işlemleri, ipotek, taşıt rehni, her türlü bloke, bono, çek, poliçe, aval, tapu ve trafik işlemleri için el imzası zorunludur.",
+    "Banka teminat mektupları elektronik imzayla da düzenlenebilir.",
+    "Törene tabi işlemlerde e-imza kullanılabilir.",
+    "Kişi okuma yazma biliyorsa imza atmalı, bilmiyorsa notere parmak izi ve mühür şehadetnamesi tasdik ettirmelidir.",
+    "Elektronik imza evlilik sözleşmelerinde kullanılamaz."
+  ],
+  answer:2
+},
+{
+  id:187,
+  text:"Kişi ölünce bankadaki kiralık kasasının açılması gündeme gelmiştir. Aşağıdakilerden hangisi konuyu ve usulü en iyi şekilde açıklamaktadır?",
+  options:[
+    "Ölen kişinin ailesi ile birlikte şube personeli açar.",
+    "Ölen kişinin ölümüne şahit 3 kişinin eşlik etmesiyle şube müdürü ile birlikte açılır.",
+    "Veraset ve İntikal Vergisi nedeniyle ölen kişinin vergi borcu olup olmadığını tespit etmek için bir Vergi Dairesi memuru açar ve kayıtları tutanağa geçer.",
+    "Bölge koordinatörü ve vergi dairesi müdürü açar.",
+    "Borçluları açar."
+  ],
+  answer:2
+},
+{
+  id:188,
+  text:"\"Miras bırakanın tek taraflı ölüme bağlı bir tasarrufu ile saklı pay sahibi mirasçısını mirasçılıktan çıkarmasıdır.\" Bu işleme ne ad verilir?",
+  options:[
+    "Iskat",
+    "Tereke",
+    "Reddi Miras",
+    "Muris Muvazaası",
+    "Tenfiz"
+  ],
+  answer:0
+},
+{
+  id:189,
+  text:"Adi şirket için aşağıdaki bilgilerden hangisi yanlıştır?",
+  options:[
+    "2 veya daha fazla kişinin emek ve sermayeleri ile faaliyet gösterirler.",
+    "Ortaklar hem gerçek hem tüzel kişi olabilir.",
+    "Adi şirket borçlarında müteselsil sorumluluk taşır.",
+    "Adi şirketlerin tüzel kişiliği yoktur, ticaret siciline kaydolmaları gerekmez.",
+    "Adi şirketlerde ortak diğer ortakların rızası olmadan paylarını devredebilir."
+  ],
+  answer:4
+},
+{
+  id:190,
+  text:"Kollektif şirket için aşağıdaki bilgilerden hangisi yanlıştır?",
+  options:[
+    "2 veya daha fazla gerçek kişiyle kurulurlar.",
+    "Ortaklar hem gerçek hem tüzel kişi olabilir.",
+    "Kollektif şirket borçlarında sınırsız ve müteselsil sorumluluk taşır, ortaklar tüm malvarlığıyla borçlardan sorumludurlar.",
+    "Kollektif şirketlerin tüzel kişiliği vardır, ticaret siciline kaydolmaları gerekir.",
+    "Emek, sermaye ve ticari itibar dahil her türlü sermaye getirilebilir."
+  ],
+  answer:1
+},
+{
+  id:191,
+  text:"Komandit şirket için aşağıdaki bilgilerden hangisi yanlıştır?",
+  options:[
+    "Komanditer sermaye veren, komandite emek verendir. Emek, sermaye ve ticari itibar dahil her türlü sermaye getirilebilir.",
+    "Ortaklardan en az biri sınırsız sorumluluk kabul ederek komandite olmalıdır.",
+    "Komandite yürüttüğü işin aynı zamanda yöneticisidir ve gerçek kişi olmak zorundadır.",
+    "Komandit şirketlerin tüzel kişiliği yoktur, ticaret siciline kaydolmaları gerekmez.",
+    "Adi Komandit Şirket ve Sermayesi Paylara Bölünmüş Komandit şirket(hisse çıkarabilir,halka açılamazlar) türleri vardır."
+  ],
+  answer:3
+},
+{
+  id:192,
+  text:"Limited şirket için aşağıdaki bilgilerden hangisi yanlıştır?",
+  options:[
+    "Limited şirketin organları Genel Kurul + Müdür/Müdürler Kurulu’dur.",
+    "Limited şirkette esas sermaye paylarının gruplara ayrılması mümkündür. Bunun için şirket sözleşmesinde bu doğrultuda bir düzenlemenin yer alması gerekir.",
+    "Limited şirket, 10.000 TL esas sermaye ile kurulabilir.",
+    "Ortak sayısı 50’yi geçemez, ortaklar sermayeye karşı sorumludur.",
+    "Yönetim kurulu idare organıdır."
+  ],
+  answer:4
+},
+{
+  id:193,
+  text:"Anonim şirket için aşağıdaki bilgilerden hangisi yanlıştır?",
+  options:[
+    "Anonim şirketin organları Genel Kurul + Yönetim Kurulu’dur.",
+    "Tüzel bir kişidir; onu oluşturan kişilerden ayrı bir hukuki varlığa sahiptir. Dava açabilir ve aleyhine açılabilir.",
+    "Bono, tahvil, hisse senedi çıkarabilir.",
+    "Sermaye şirketi türüdür. Asgari sermaye miktarı 50.000 TL olmakla beraber bu oran kayıtlı sermaye sistemini benimseyen anonim şirketler bakımından 100.000 TL'dir.",
+    "Müdürler Kurulu idare organıdır."
+  ],
+  answer:4
+},
+{
+  id:194,
+  text:"Aşağıdaki kavramlar ile açıklamaları doğru şekilde hangi seçenekte eşleştirilmiştir?",
+  prompt:"I. Yokluk\nII. Mutlak Butlan\nIII. Nispi Butlan\n\n1. Bir işlemin hukuken hiç doğmamış olduğu ve muteber olmadığı, kurucu unsurların eksik olduğu durumlardır. (Örn. nikah memuru önünde yapılmamış evlilik)\n2. Geçersizlik, hükümsüzlük. Bir işlemin hukuken ölü doğmasıdır. Başlangıçta kurucu unsurlar vardır, ancak sonradan yokluğu anlaşılırsa mutlak butlan söz konusudur. (Örn. sahte kimlikle evlenen kişinin aslında evli olması)\n3. Geçerliliği veya geçersizliği, bundan etkilenen kimsenin tek yanlı bildirimine bağlı olan yaptırımdır. (Örn. yanılma, aldatma, korkutma)",
+  options:[
+    "I-1, II-2, III-3",
+    "I-2, II-1, III-3",
+    "I-3, II-2, III-1",
+    "I-1, II-3, III-2",
+    "I-2, II-3, III-1"
+  ],
+  answer:0
+},
+{
+  id:195,
+  text:"Aşağıdakilerden hangisi dijital dönüşümün dönüştürücü yönünü ifade etmemektedir?",
+  options:[
+    "Sadece araç olmayıp bir bakış açısı olması",
+    "Yeni iş yapış şekilleri ve sürekli değişime açık olmak",
+    "Kararları veriye dayandırmak",
+    "‘Daha iyisi mümkün mü?’ sorusunu hep sormak",
+    "Metal yakalı işçilerin beyaz yakalı işçilerin yerini alması"
+  ],
+  answer:4
+},
+{
+  id:196,
+  text:"Aşağıdaki eşleşmelerden hangisi dijital dönüşümün tetikleyicileri arasında yer almaz?",
+  options:[
+    "Müşteri: Hızlı, kolay, kişiselleştirilmiş hizmetler",
+    "Teknoloji: Mobil cihaz, bulut teknolojileri, AI ve RPA",
+    "Rekabet: Dijital Bankacılık, Fintech",
+    "Regülasyon: Uyum zorunlulukları",
+    "Özkaynak: Finansal yatırımlara ayrılan sermaye stoğunun artırılması"
+  ],
+  answer:4
+},
+{
+  id:197,
+  text:"Bankaların dijital dönüşümde en ön sıralarda yer almasını sağlayan 3 özellik aşağıdakilerden hangisidir?",
+  options:[
+    "Veri yoğunluğu, süreç tekrarı, müşteri teması",
+    "Kalabalık projeler, ülke çapında hizmet, rekabet",
+    "Rekabet, Fintech, regülasyonlar",
+    "Trendler, sosyopolitik yapı, borsalar",
+    "Teknolojideki gelişmeler, büyük veri, müşteri deneyimi"
+  ],
+  answer:0
+},
+{
+  id:198,
+  text:"Aşağıdaki yapay zeka alanları ile açıklamaları doğru şekilde hangi seçenekte eşleştirilmiştir?",
+  prompt:"I. Makine Öğrenimi\nII. Derin Öğrenme\nIII. NLP (Doğal Dil İşleme)\nIV. Görüntü İşleme\nV. Robotik\nVI. Uzman Sistemler\n\n1. Bilgisayarların verilerden öğrenerek açıkça programlanmadan görevleri yerine getirmesini sağlar.\n2. Makine öğrenmesinin alt dalıdır; yapay sinir ağları ile büyük verilerden karmaşık örüntüler keşfeder. (OCR, otomatik sürüş)\n3. Bilgisayarın insan dilini anlama ve yorumlama yeteneğidir. (Chatbot, otomatik çeviri, sesli asistan)\n4. Dijital görüntülerden bilgi çıkarma, analiz etme ve tanıma sürecidir. (Yüz tanıma, tıbbi görüntüleme, güvenlik)\n5. Fiziksel görevleri yerine getiren otomatik makinelerin tasarımı ve kontrolüdür. (Sanayi üretimi, savunma)\n6. Belirli bir uzman gibi karar veren, danışmanlık ve karar destek sistemleri olarak kullanılan yapılardır.",
+  options:[
+    "I-1, II-2, III-3, IV-4, V-5, VI-6",
+    "I-2, II-1, III-3, IV-5, V-4, VI-6",
+    "I-1, II-3, III-2, IV-4, V-5, VI-6",
+    "I-4, II-2, III-3, IV-1, V-5, VI-6",
+    "I-1, II-2, III-4, IV-3, V-6, VI-5"
+  ],
+  answer:0
+},
+
+{
+  id:199,
+  text:"TCMB politika faizleri ve faiz koridoru ile ilgili aşağıdakilerden hangisi söylenemez?",
+  options:[
+    "Faiz koridoru kullanılarak kur istikrarlandırma politikası güdülebileceği",
+    "Faiz koridoru araçlarının ihaleye çıkıldığı, bazen kasten çıkılmadığı",
+    "Merkezin borç alma faizi oranı eşik %41,5 ve 1 haftalık repo faizinin %43 olduğu",
+    "Gecelik Borç Verme Faiz Oranının %46, Geç Likidite Penceresinin %49 olduğu",
+    "Bankalar arası borçlanmalarda eşik değer için TCMB Gecelik Borç Alma Faiz oranının bir eşik olamayacağı"
+  ],
+  answer:4
+},
+{
+  id:200,
+  text:"Bir banka kredi fiyatlaması için Ağırlıklı Ortalama Finansman Maliyetini hesaplamak istiyor. Kaynakların %80'i %43 (1 haftalık repo faizi), %20'si %46 (Gecelik Borç Verme faizi) ile finanse edilmiştir. Kredinin minimum faiz oranı kaç olmalıdır?",
+  options:[
+    "%40",
+    "%42.4",
+    "%43.6",
+    "%46",
+    "%43"
+  ],
+  answer:2
+},
+{
+  id:201,
+  text:"10.000 TL %15 yıllık basit faizle; 1. yıl sonu toplam para, 2. yıl sonu toplam para, 2 yıllık basit faiz oranı ve 2 yıllık basit faiz kazancı tutarı hangi seçenekte doğru olarak formülize edilmiştir?",
+  options:[
+    "1. yıl sonu 10.000x(1+0.15x1) , 2. yıl sonu 10.000x(1+0.15x2) , 2 yıllık basit faizi (10.000x(1+0.15x2)-10.000) ÷10.000 , 2 yıllık basit faiz kazancı (10.000x(1+0.15x2)-10.000)",
+    "1. yıl sonu 10.000x(1+0.15^1) , 2. yıl sonu 10.000x(1+0.15^2) , 2 yıllık basit faizi (10.000x(1+0.15^2)-10.000) ÷10.000 , 2 yıllık basit faiz kazancı (10.000x(1+0.15^2)-10.000)",
+    "1. yıl sonu 10.000÷(1+0.15x1) , 2. yıl sonu 10.000÷(1+0.15x2) , 2 yıllık basit faizi (10.000÷(1+0.15x2)-10.000) ÷10.000 , 2 yıllık basit faiz kazancı (10.000÷(1+0.15x2)-10.000)",
+    "1. yıl sonu 10.000x(1+0.015x1) , 2. yıl sonu 10.000x(1+0.015x2) , 2 yıllık basit faizi (10.000x(1+0.015x2)-10.000) ÷10.000 , 2 yıllık basit faiz kazancı (10.000x(1+0.015x2)-10.000)",
+    "1. yıl sonu 10.000x(1+0.15x360÷365) , 2. yıl sonu 10.000x(1+0.15x720÷365) , 2 yıllık basit faizi (10.000x(1+0.15x720÷365)-10.000) ÷10.000 , 2 yıllık basit faiz kazancı (10.000x(1+0.15x720÷365)-10.000)"
+  ],
+  answer:0
+},
+{
+  id:202,
+  text:"Aylık %1,5 ile değerlendirilen mevduatın 3 aylık basit faiz oranı kaçtır?",
+  options:[
+    "3x0,015",
+    "(1+0,015)^3 -1",
+    "0,015÷3",
+    "0,015^3",
+    "3x0,0015"
+  ],
+  answer:0
+},
+{
+  id:203,
+  text:"Yıllık %20 faiz ile yatırılan 1.000 TL’nin, basit faiz hesabına göre 5 yıl sonunda anapara ve faiz ödemeli olmak üzere ulaşacağı değer hangi formülle bulunur?",
+  options:[
+    "1000x(1+0.20x5)",
+    "1000x(1+0.20^5)",
+    "1000÷(1+0.20x5)",
+    "1000x(1+0.02x5)",
+    "1000x(1+0.20x360÷365x5)"
+  ],
+  answer:0
+},
+{
+  id:204,
+  text:"Bankaya 1.000 TL birikiminizi, yıllık %20 faizle, yılda bir kere faiz ödemeli 5 yıl vadeli mevduat olarak yatırdınız. Yatırdığınız paranın 5 yıl sonundaki değeri hangi formülle bulunur?",
+  options:[
+    "1000x(1+0.20)^5",
+    "1000x(1+0.20x5)",
+    "1000÷(1+0.20)^5",
+    "1000x(1+0.02x5)",
+    "1000x(1+0.20)^360÷365"
+  ],
+  answer:0
+},
+{
+  id:205,
+  text:"Bankaya 1.000 TL bugünkü değerindeki mevduatınızı, yıllık %20 faizle; yılda 1, 2 ve 4 kez faiz ödemeli olarak yatırdığınızda yıl sonundaki dönüş tutarları hangi formüllerle bulunur?",
+  options:[
+    "Yılda 1: 1.000 x (1+0,20)\nYılda 2: 1.000 x (1+0,20÷2)^2\nYılda 4: 1.000 x (1+0,20÷4)^4",
+    "Yılda 1: 1.000 x (1+0,20)\nYılda 2: 1.000 x (1+0,20x2)\nYılda 4: 1.000 x (1+0,20x4)",
+    "Yılda 1: 1.000 ÷ (1+0,20)\nYılda 2: 1.000 ÷ (1+0,20÷2)^2\nYılda 4: 1.000 ÷ (1+0,20÷4)^4",
+    "Yılda 1: 1.000 x (1+0,02)\nYılda 2: 1.000 x (1+0,20÷2)^(2x2)\nYılda 4: 1.000 x (1+0,20÷4)^(4x2)",
+    "Yılda 1: 1.000 x (1+0,20)\nYılda 2: 1.000 x (1+0,02)^2\nYılda 4: 1.000 x (1+0,005)^4"
+  ],
+  answer:0
+},
+{
+  id:206,
+  text:"Anapara=1.000 TL, faiz oranı=%20, süre=3 yıl. Aşağıdakilerden hangisi (süre bilgisi verilmiş olsa da) 1 YILLIK bileşik faiz oranlarını doğru formülize eder?",
+  options:[
+    "Yılda 1: (1+0,20)^3-1\nYılda 4: (1+0,20÷4)^(4x3)-1\nAyda 1: (1+0,20÷12)^(12x3)-1\nYılda 365: (1+0,20÷365)^(365x3)-1",
+    "Yılda 1: 1÷(1+0,20)-1\nYılda 4: 1÷(1+0,20÷4)^4-1\nAyda 1: 1÷(1+0,20÷12)^12-1\nYılda 365: 1÷(1+0,20÷365)^365-1",
+    "Yılda 1: (1+0,20)^1-1\nYılda 4: (1+0,20÷4)^4-1\nAyda 1: (1+0,20÷12)^12-1\nYılda 365: (1+0,20÷365)^365-1",
+    "Yılda 1: (1+0,02)^1-1\nYılda 4: (1+0,02÷4)^4-1\nAyda 1: (1+0,02÷12)^12-1\nYılda 365: (1+0,02÷365)^365-1",
+    "Yılda 1: (1+0,20)^1-1\nYılda 4: (1+0,20÷4)^4-1\nAyda 1: (1+0,20÷12)^12-1\nYılda 365: (1+0,20÷360)^360-1"
+  ],
+  answer:2
+},
+{
+  id:207,
+  text:"Bir mevduat müşterisi bankaya 1.000 TL mevduatını yıllık %20 faiz oranı ile 1 yıl vadeli yatırdığında, 1 yıl sonundaki anapara + faiz değeri aşağıdaki formüllerden hangisinde doğru olarak verilmiştir?",
+  options:[
+    "1000x(1+0,20÷12)^12",
+    "1000x(1+0,20÷4)^4",
+    "1000x(1+0,20x1)",
+    "1000÷(1+0,20)^1",
+    "1000x(1+0,20)^1"
+  ],
+  answer:4
+},
+{
+  id:208,
+  text:"Mevduat müşterimiz 1.000 TL’sını yıllık %20 faiz oranı ile, her yıl sonunda ödemeli olmak üzere, 4 yıl vadeli olarak bankaya yatırdığında, dönem sonunda toplam anapara + faiz hangi formülle doğru olarak hesaplanır?",
+  options:[
+    "1000x(1+0,20x4)",
+    "1000x(1+0,20)^4",
+    "1000÷(1+0,20)^4",
+    "1000x(1+0,02)^4",
+    "1000x(1+0,20÷4)^4"
+  ],
+  answer:1
+},
+{
+  id:209,
+  text:"Yılda bir kere faiz ödemeli olarak yıllık %20 faiz oranı ile yatırılan bir mevduat hesabında, 2 yıl sonunda 1.440 TL'ye ulaşmak için bugün yatırılması gereken tutar hangi formülle hesaplanır?",
+  options:[
+    "1440x(1+0,20)^2",
+    "1440÷(1+0,20)",
+    "1440÷(1+0,20)^2",
+    "1440x(1+0,02)^2",
+    "1440÷(1+0,20x2)"
+  ],
+  answer:2
+},
+{
+  id:210,
+  text:"185 günlük, 70.000 TL nominal değerli Hazine bonosunun piyasa faizlerinin %20 olduğu durumda bugünkü değer hangi formülle hesaplanır?",
+  options:[
+    "70.000 = PV x (1+0,20)^185",
+    "70.000 = PV ÷ (1+0,20x185÷365)",
+    "70.000 = PV x (1+0,20÷185)",
+    "70.000 = PV x (1+0,20x185÷365)",
+    "70.000 = PV x (1+0,20x185÷360)"
+  ],
+  answer:3
+},
+{
+  id:211,
+  text:"3 ay boyunca, faiz oranlarının %24 olduğu bir dönemde, her ay 200 TL ödediğimiz bir yatırımın bugünkü değeri hangi formülle hesaplanır?",
+  options:[
+    "200x(1+0,02)^1 + 200x(1+0,02)^2 + 200x(1+0,02)^3",
+    "200 ÷ (1+0,24)^3",
+    "200 ÷ (1+0,02)x3",
+    "200 ÷ (1+0,02)^1 + 200 ÷ (1+0,02)^2 + 200 ÷ (1+0,02)^3",
+    "200 ÷ (1+0,24÷12)^3"
+  ],
+  answer:3
+},
+{
+  id:212,
+  text:"PV = 10.000 TL, r = %2, n = 12 ise taksit tutarını formülize eden ifade aşağıdakilerden hangisinde doğru olarak verilmiştir?",
+  options:[
+    "10.000x0,02x(1-(1÷(1+0,02)^12))",
+    "10.000÷(1+0,02)^12",
+    "10.000x0,02÷(1-(1÷(1+0,02)^12))",
+    "10.000x(1+0,02)^12",
+    "10.000x0,2÷(1-(1÷(1+0,2)^12))"
+  ],
+  answer:2
+},
+{
+  id:213,
+  text:"PV = 10.000 TL, r = %2, n = 12 ise ilk taksitteki faiz ve ana para tutarını formülize eden ifade aşağıdakilerden hangisinde doğru olarak verilmiştir?",
+  options:[
+    "Faiz: 10.000x0,02÷12 , Anapara: 10.000÷12",
+    "Faiz: 10.000x0,002 , Anapara: 10.000x0,02",
+    "Faiz: 10.000x0,02 , Anapara: 10.000x0,02÷(1-(1÷(1+0,02)^12)) - 10.000x0,02",
+    "Faiz: 10.000÷(1+0,02)^12 , Anapara: 10.000x0,02÷12",
+    "Faiz: 10.000x0,2 , Anapara: 10.000x0,02"
+  ],
+  answer:2
+},
+{
+  id:214,
+  text:"Aşağıdakilerden hangisi/hangileri aylık kredilerden değildir?",
+  prompt:"I. Taşıt Kredisi\nII. Konut Kredisi\nIII. Tüketici Kredisi\nIV. Aylık Eşit Taksitli Ticari Kredi\nV. Kredi Kartı\nVI. Kredili Mevduat Hesabı\nVII. Borçlu Cari Hesap Kredisi",
+  options:[
+    "Yalnız II",
+    "I, II, III, V",
+    "Yalnız VII",
+    "I, II, IV, V, VII",
+    "II, III, VI"
+  ],
+  answer:2
+},
+{
+  id:215,
+  text:"Aşağıdakilerden hangisi/hangileri yıllık kredilerden değildir?",
+  prompt:"I. Spot Kredi\nII. Borçlu Cari Hesap Kredisi\nIII. İskonto/İştira Kredisi\nIV. Kredili Mevduat Hesabı",
+  options:[
+    "Yalnız II",
+    "I, II, III, IV",
+    "Yalnız IV",
+    "I, II, IV",
+    "II, III, IV"
+  ],
+  answer:2
+},
+{
+  id:216,
+  text:"Bir yatırımcı bugün 425.000 TL parasını bankada 35 gün vadeli mevduatta yıllık %43,50 faiz oranı ile değerlendirirse dönem sonunda kaç TL parası olur?",
+  options:[
+    "425.000x(1+0,4350x35÷360)",
+    "425.000x(1+0,4350÷35)",
+    "425.000÷(1+0,4350x35÷365)",
+    "425.000x(1+0,04350x35÷365)",
+    "425.000x(1+0,4350x35÷365)"
+  ],
+  answer:4
+},
+{
+  id:217,
+  text:"Bir yatırımcı 895.000 TL birikimini bankada O/N (gecelik) mevduatta yıllık %45 faiz oranı ile 30 gün boyunca değerlendirirse vade sonunda kaç TL parası olur?",
+  options:[
+    "895.000x(1+0,45x30÷360)",
+    "895.000x(1+0,45÷365)^30",
+    "895.000÷(1+0,45x30÷365)",
+    "895.000x(1+0,045x30÷365)",
+    "895.000x(1+0,45x1÷365)^30"
+  ],
+  answer:4
+},
+{
+  id:218,
+  text:"Bir yatırımcı 932.000 TL parasını 45 gün vadeli mevduatta değerlendirince parası 983.650 TL oluyorsa bu yatırımın yıllık faiz oranı % kaçtır?",
+  options:[
+    "983.650÷932.000 = 1 + r x (45÷360)",
+    "983.650÷932.000 = 1 + r ÷ (45÷365)",
+    "983.650÷932.000 = 1 + r x (45÷365)",
+    "983.650÷932.000 = 1 + r^45",
+    "983.650÷932.000 = 1 + r x (365÷45)"
+  ],
+  answer:2
+},
+{
+  id:219,
+  text:"Bir yatırımcının 127 gün sonra 800.000 TL parası olması için bugün yıllık %44,25 faiz oranı ile kaç TL yatırım yapması gerekir?",
+  options:[
+    "800.000 = PV ÷ (1+0,4425x127÷365)",
+    "800.000 = PVx(1+0,4425x127÷360)",
+    "800.000 = PVx(1+0,4425÷127)",
+    "800.000 = PVx(1+0,04425x127÷365)",
+    "800.000 = PVx(1+0,4425x127÷365)"
+  ],
+  answer:4
+},
+{
+  id:220,
+  text:"Bir firma bugün 1.200.000 TL tutarında 85 gün vadeli spot krediyi yıllık %54 faiz oranı ile kullanırsa, vade sonunda kaç TL geri ödemelidir?",
+  options:[
+    "1.200.000x(1+0,54x85÷365)",
+    "1.200.000÷(1+0,54x85÷360)",
+    "1.200.000x(1+0,54÷85)",
+    "1.200.000x(1+0,054x85÷360)",
+    "1.200.000x(1+0,54x85÷360)"
+  ],
+  answer:4
+},
+{
+  id:221,
+  text:"Bir firmanın elinde 75 gün vadeli 820.000 TL tutarında çek vardır. Yıllık %55 faiz oranı ile bugün kaç TL iskonto kredisi verilebilir?",
+  options:[
+    "820.000 = PV ÷ (1+0,55x75÷360)",
+    "820.000 = PVx(1+0,55x75÷365)",
+    "820.000 = PVx(1+0,55÷75)",
+    "820.000 = PVx(1+0,055x75÷360)",
+    "820.000 = PVx(1+0,55x75÷360)"
+  ],
+  answer:4
+},
+{
+  id:222,
+  text:"Bankamızın aylık faiz oranı %5 ise yıllık efektif (Eff) faiz oranı % kaç olur?",
+  options:[
+    "(1+0,05x12)-1",
+    "(1+0,5)^12-1",
+    "0,05x12",
+    "(1+0,05)^12-1",
+    "(1+0,005)^12-1"
+  ],
+  answer:3
+},
+{
+  id:223,
+  text:"Bankamızın Personel kredisinin faiz oranı aylık %2,89 ise yıllık efektif (Eff) faiz oranı % kaç olur?",
+  options:[
+    "(1+0,0289x12)-1",
+    "0,0289x12",
+    "(1+0,289)^12-1",
+    "(1+0,0289)^12-1",
+    "(1+0,00289)^12-1"
+  ],
+  answer:3
+},
+{
+  id:224,
+  text:"Bankamızın BCH ürünü yıllık %52 faiz ile satılıyorsa yıllık efektif (Eff) faiz oranı % kaç olur?",
+  options:[
+    "(1+0,52)^1-1",
+    "(1+0,52÷12)^12-1",
+    "(1+0,52x30÷360)^12-1",
+    "(1+0,52x90÷360)^4-1",
+    "(1+0,052)^4-1"
+  ],
+  answer:3
+},
+{
+  id:225,
+  text:"X Bank yıllık %42,10 (gecelik O/N), Y Bank yıllık %43,50 35 gün vadeli faiz teklif ediyor. Yatırımcı bu iki alternatifi karşılaştırmak için yıllık efektif oranları hangi formülle hesaplamalıdır?",
+  options:[
+    "(1+0,4210x1÷365)^365-1  ve  (1+0,4350x35÷365)^(365÷35)-1",
+    "(1+0,4210÷365)^35-1  ve  (1+0,4350÷35)^365-1",
+    "(1+0,4210÷360)^360-1  ve  (1+0,4350÷35)^12-1",
+    "(1+0,4210)^365-1  ve  (1+0,4350)^35-1",
+    "(1+0,4210x30÷360)^12-1  ve  (1+0,4350x35÷360)^12-1"
+  ],
+  answer:0
+},
+{
+  id:226,
+  text:"10.000.000 TL mevduat, yıllık %42,50 faiz oranı ile 42 gün vadeli mevduatta değerlendirildiğinde (stopaj %17,50), vade sonu net tutar kaç TL olur?",
+  options:[
+    "10.000.000x(1+0,4250x42÷365)",
+    "10.000.000x(1+0,4250x42x0,8250÷365)",
+    "10.000.000÷(1+0,4250x42÷365)",
+    "10.000.000x(1+0,4250÷42)",
+    "10.000.000x(1+0,04250x42÷365)"
+  ],
+  answer:1
+},
+{
+  id:227,
+  text:"890.000 $ mevduat bankamızda 35 gün vadeli mevduatta yıllık %2,25 faiz oranı ile 210 gün boyunca değerlendirilirse (stopaj %25), vade sonu net kaç $ olur?",
+  options:[
+    "890.000x(1+0,0225x35÷365)^6",
+    "890.000x(1+0,0225x35x0,75÷365)^6",
+    "890.000÷(1+0,0225x35x0,75÷365)^6",
+    "890.000x(1+0,225x35x0,75÷365)^6",
+    "890.000x(1+0,00225x210x0,75÷365)"
+  ],
+  answer:1
+},
+{
+  id:228,
+  text:"X Firması bugün 950.000 TL tutarında 98 gün vadeli spot krediyi yıllık %57 faiz oranı ile kullanırsa (BSMV %5, KKDF %0), vade sonunda kaç TL geri ödemelidir?",
+  options:[
+    "950.000x(1+0,57x98÷365)",
+    "950.000x(1+0,57x98÷360)",
+    "950.000x(1+0,57x98x1,05÷360)",
+    "950.000÷(1+0,57x98÷360)",
+    "950.000x(1+0,057x98÷360)"
+  ],
+  answer:2
+},
+{
+  id:229,
+  text:"Zeynep Hn. 1.000.000 TL konut kredisini aylık %3 faiz oranlı 120 ay vadeli kullanırsa her ay kaç TL taksit öder?",
+  options:[
+    "1.000.000x0,03x120",
+    "1.000.000÷120",
+    "1.000.000x0,03÷(1-(1÷(1+0,03)^120))",
+    "1.000.000x0,003÷(1-(1÷(1+0,03)^120))",
+    "1.000.000x0,30÷(1-(1÷(1+0,03)^12))"
+  ],
+  answer:2
+},
+{
+  id:230,
+  text:"X Firması 2.000.000 TL taksitli ticari krediyi 48 ay vadeli aylık %3,25 faiz oranı ile kullanırsa (BSMV %5, KKDF %0) her ay kaç TL ödeme yapar?",
+  options:[
+    "2.000.000x0,0325÷(1-(1÷(1+0,0325)^48))",
+    "2.000.000x0,0325x1,05÷(1-(1÷(1+0,0325x1,05)^48))",
+    "2.000.000x0,325÷(1-(1÷(1+0,0325)^12))",
+    "2.000.000÷48",
+    "2.000.000x0,00325÷(1-(1÷(1+0,0325)^48))"
+  ],
+  answer:1
+},
+{
+  id:231,
+  text:"100.000 TL Tüketici Kredisi aylık %5,06 faiz oranlı 36 ay vadeli ise, aylık taksitleri kaç TL olur? (BSMV %15, KKDF %15)",
+  options:[
+    "100.000x0,0506÷(1-(1÷(1+0,0506)^36))",
+    "100.000x0,0506x1,3÷(1-(1÷(1+0,0506x1,3)^36))",
+    "100.000÷36",
+    "100.000x0,00506÷(1-(1÷(1+0,0506)^36))",
+    "100.000x0,506÷(1-(1÷(1+0,0506)^12))"
+  ],
+  answer:1
+}
+
+
 ];
 
 /* ================= STATE & ELEMENTS ================= */
