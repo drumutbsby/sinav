@@ -30,8 +30,11 @@
     /* Soru haritası */
     .mapBtn{margin-left:auto}
     .mapWrap{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
-    .map{max-width:760px;width:100%;background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px}
+    .map{max-width:820px;width:100%;background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px}
     .map h3{margin:0 0 8px 0}
+    .rangeRow{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
+    .rbtn{border:1px solid var(--border);background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer}
+    .rbtn.active{background:#e0e7ff;border-color:#c7d2fe}
     .grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
     .qbtn{border:1px solid var(--border);background:#fff;border-radius:8px;padding:8px 0;text-align:center;cursor:pointer;font-size:13px}
     .qbtn.ans{background:#eafff1;border-color:#b7f3c8}
@@ -44,26 +47,10 @@
     .dot.cur{background:#e0e7ff;border-color:#c7d2fe}
     .close{border:none;background:#f1f5f9;padding:8px 10px;border-radius:8px;cursor:pointer}
 
-	/* Doğru Cevabı Göster */
-    .opt-correct{
-    background:#e7f8ee;
-    border-color:var(--ok);
-    color:var(--oktext);
-    font-weight:bold;
-}
-    .opt-wrong{
-    background:#fde8e8;
-    border-color:var(--bad);
-    color:var(--badtext);
-    font-weight:bold;
-}
-    .opt-fadeWrong{
-    background:#fff5f5;
-    border-color:#fecaca;
-    color:#9f1239;
-    font-weight:bold;
-}
-
+    /* Doğru Cevabı Göster */
+    .opt-correct{background:#e7f8ee;border-color:var(--ok);color:var(--oktext);font-weight:bold}
+    .opt-wrong{background:#fde8e8;border-color:var(--bad);color:var(--badtext);font-weight:bold}
+    .opt-fadeWrong{background:#fff5f5;border-color:#fecaca;color:#9f1239;font-weight:bold}
 
     /* Sonuç/Review */
     .stats{display:flex;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
@@ -84,7 +71,7 @@
   <div class="header">
     <div class="badge">Süre: <strong id="timer">300:00</strong></div>
     <div class="badge">Yanıtlanan: <strong id="ansCount">0</strong>/<span id="totalQ">0</span></div>
-    <div class="badge">Eşik: <strong id="passThreshold">164</strong> doğru</div>
+    <div class="badge">Eşik: <strong id="passThreshold">70</strong> doğru</div>
     <div class="spacer"></div>
     <button id="openMap" class="badge mapBtn">Soru Haritası</button>
   </div>
@@ -105,6 +92,7 @@
   <div id="mapWrap" class="mapWrap" aria-hidden="true">
     <div class="map">
       <h3>Soru Haritası</h3>
+      <div id="rangeRow" class="rangeRow"></div>
       <div id="mapGrid" class="grid"></div>
       <div class="mapfooter">
         <div class="legend">
@@ -120,14 +108,15 @@
 <script>
 /* ============== AYARLAR ============== */
 const DURATION_MIN = 300;      // dakika
-const PASS_THRESHOLD = 164;     // geçiş eşiği
+const PASS_THRESHOLD = 70;     // geçiş eşiği
+const RANGE_SIZE = 5;          // harita gruplama: 5'erli
 
 /* ============== QUESTIONS ==============
    Burayı aynen havuzunuzla değiştirin.
    Şema: { id, text, options[5], answer(0-4), prompt? }
 */
 const QUESTIONS = [
-{
+  {
     id: 1,
     difficulty: "Kolay",
     text: "Aşağıdakilerden hangisi dijital dönüşüm sürecinin bir çıktısı olarak değerlendirilebilir?",
@@ -2901,6 +2890,8 @@ const QUESTIONS = [
 let cur = 0;
 let answers = new Map(); // qid -> index
 let shown = new Set();   // “Doğru Cevabı Göster”e basılan sorular
+let examFinished = false; // sayfadan ayrılma uyarısı için
+let activeRangeIndex = 0;
 
 const bar = document.getElementById('bar');
 const screen = document.getElementById('screen');
@@ -2913,12 +2904,22 @@ const btnSubmit = document.getElementById('submit');
 const btnShow = document.getElementById('showAnswer');
 const mapWrap = document.getElementById('mapWrap');
 const mapGrid = document.getElementById('mapGrid');
+const rangeRow = document.getElementById('rangeRow');
 const openMap = document.getElementById('openMap');
 const closeMap = document.getElementById('closeMap');
 const resultBox = document.getElementById('result');
 
 totalQEl.textContent = QUESTIONS.length;
 passEl.textContent = PASS_THRESHOLD;
+
+/* ============== SAYFADAN AYRILMA UYARISI ============== */
+window.addEventListener('beforeunload', (e)=>{
+  if (!examFinished && answers.size > 0) {
+    e.preventDefault();
+    e.returnValue = "Yaptığınız sorular sıfırlanacaktır. Sayfadan ayrılmak istediğinize emin misiniz?";
+    return "Yaptığınız sorular sıfırlanacaktır. Sayfadan ayrılmak istediğinize emin misiniz?";
+  }
+});
 
 /* ============== ZAMANLAYICI ============== */
 const timerEl = document.getElementById('timer');
@@ -2927,7 +2928,10 @@ const t = setInterval(()=>{
   const rem = Math.max(0, end - Date.now());
   const m = Math.floor(rem/60000), s = Math.floor((rem%60000)/1000);
   timerEl.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  if(rem<=0){ clearInterval(t); finalize(); }
+  if(rem<=0){
+    clearInterval(t);
+    finalize();
+  }
 }, 250);
 
 /* ============== RENDER ============== */
@@ -2962,7 +2966,9 @@ function render(){
   ansCountEl.textContent = done;
   bar.style.width = `${(done/QUESTIONS.length)*100}%`;
 
-  buildMap();
+  // aktif aralığı cur'a göre güncelle
+  activeRangeIndex = Math.floor(cur / RANGE_SIZE);
+  buildMap(); // aralık başlıkları + o aralıktaki sorular
 }
 
 function applyShowColors(q, pickedIdx){
@@ -2992,10 +2998,10 @@ screen.addEventListener('change', (e)=>{
     const idx = [...screen.querySelectorAll('input[name="opt"]')].findIndex(x=>x.checked);
     answers.set(QUESTIONS[cur].id, idx);
     btnShow.disabled = false;
-    buildMap();
     const done = answers.size;
     ansCountEl.textContent = done;
     bar.style.width = `${(done/QUESTIONS.length)*100}%`;
+    buildMap(); // haritadaki işaretli durumu güncelle
   }
 });
 
@@ -3012,28 +3018,63 @@ btnShow.onclick = ()=>{
 
 btnSubmit.onclick = finalize;
 
-openMap.onclick = ()=>{ mapWrap.style.display='flex'; };
+openMap.onclick = ()=>{
+  buildMap();
+  mapWrap.style.display='flex';
+};
 closeMap.onclick = ()=>{ mapWrap.style.display='none'; };
 mapWrap.addEventListener('click', e=>{ if(e.target===mapWrap) mapWrap.style.display='none'; });
 
+/* ============== SORU HARİTASI ============== */
 function buildMap(){
+  // 1) Aralık butonları
+  const total = QUESTIONS.length;
+  const rangeCount = Math.ceil(total / RANGE_SIZE);
+  rangeRow.innerHTML = '';
+  for(let ri=0; ri<rangeCount; ri++){
+    const start = ri*RANGE_SIZE + 1; // 1-indexed gösterim
+    const end = Math.min((ri+1)*RANGE_SIZE, total);
+    const rb = document.createElement('button');
+    rb.className = 'rbtn' + (ri===activeRangeIndex ? ' active':'');
+    rb.textContent = `${start}-${end}`;
+    rb.onclick = ()=>{
+      activeRangeIndex = ri;
+      renderRangeGrid();
+      // aktif buton vurgusu
+      [...rangeRow.children].forEach(b=>b.classList.remove('active'));
+      rb.classList.add('active');
+    };
+    rangeRow.appendChild(rb);
+  }
+  // 2) Aktif aralığın sorularını çiz
+  renderRangeGrid();
+}
+
+function renderRangeGrid(){
+  const total = QUESTIONS.length;
+  const startIdx = activeRangeIndex * RANGE_SIZE;              // 0-indexed
+  const endIdx = Math.min(startIdx + RANGE_SIZE, total);       // slice end
   mapGrid.innerHTML = '';
-  QUESTIONS.forEach((q, i)=>{
+  for(let i=startIdx; i<endIdx; i++){
+    const q = QUESTIONS[i];
     const btn = document.createElement('button');
     btn.className = 'qbtn';
     if(answers.has(q.id)) btn.classList.add('ans');
     if(i===cur) btn.classList.add('cur');
-    btn.textContent = i+1;
-    btn.onclick = ()=>{ cur=i; render(); mapWrap.style.display='none'; };
+    btn.textContent = (i+1);
+    btn.onclick = ()=>{
+      cur = i;
+      render();
+      mapWrap.style.display='none';
+    };
     mapGrid.appendChild(btn);
-  });
+  }
 }
 
 /* ============== SKORLAMA & REVIEW ============== */
 function letter(i){ return ['A','B','C','D','E'][i] ?? '-'; }
 
 function finalize(){
-  // doğru/yanlış/boş
   let correct = 0, wrong = 0, blank = 0;
   QUESTIONS.forEach(q=>{
     const pick = answers.get(q.id);
@@ -3041,10 +3082,9 @@ function finalize(){
     else if(pick===q.answer) correct++;
     else wrong++;
   });
-
   const pass = correct>=PASS_THRESHOLD;
+  examFinished = true;
 
-  // üst istatistik
   resultBox.classList.remove('hidden');
   resultBox.innerHTML = `
     <h3>Sonuç</h3>
@@ -3059,7 +3099,6 @@ function finalize(){
     <div id="review"></div>
   `;
 
-  // tüm sorular için: soru metni + kullanıcının şıkkı + doğru şık
   const rev = document.getElementById('review');
   rev.innerHTML = QUESTIONS.map((q, idx)=>{
     const pick = answers.get(q.id);
@@ -3081,10 +3120,11 @@ function finalize(){
     `;
   }).join('');
 
-  // kilitle (sadece cevaplamayı)
-  btnPrev.disabled = btnNext.disabled = btnShow.disabled = true;
+  btnPrev.disabled = btnNext.disabled = btnShow.disabled = btnSubmit.disabled = true;
   screen.querySelectorAll('input[type="radio"]').forEach(r=>r.disabled=true);
 }
+
+/* ============== INIT ============== */
 render();
 </script>
 </body>
