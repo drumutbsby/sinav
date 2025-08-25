@@ -6,31 +6,27 @@
   <title>Uzmanlık Sınavı Simülasyonu</title>
   <style>
     :root{
-      --border:#ddd; --muted:#666; --ok:#16a34a; --info:#60a5fa; --bad:#b91c1c;
-      --chip:#f5f5f5; --bg:#fff; --tile:#eef2ff;
+      --border:#ddd; --muted:#666; --ok:#16a34a; --oktext:#065f46; --bad:#b91c1c; --badtext:#7f1d1d;
+      --bg:#fff; --tile:#eef2ff; --warn:#f59e0b;
     }
     body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:960px;margin:24px auto;padding:0 16px;background:#fafafa;color:#111}
     h1{margin:0 0 12px 0}
     .row{margin:10px 0}
     .card{border:1px solid var(--border);border-radius:12px;padding:20px;margin:16px 0;background:var(--bg)}
-    .opts label{display:block;margin:6px 0;padding:10px;border:1px solid #e5e5e5;border-radius:10px;cursor:pointer;background:#fff}
+    .opts label{display:block;margin:6px 0;padding:10px 12px;border:1px solid #e5e5e5;border-radius:10px;cursor:pointer;background:#fff;transition:background .15s,border-color .15s,color .15s}
     .opts input{margin-right:8px}
-    .btns{display:flex;gap:8px;margin-top:12px}
+    .btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
     button{padding:10px 14px;border:1px solid #ccc;border-radius:10px;background:#f7f7f7;cursor:pointer}
     button:hover{background:#eee}
     button[disabled]{opacity:.5;cursor:not-allowed}
     .progress{height:10px;background:#eee;border-radius:6px;overflow:hidden;margin:8px 0 16px}
-    .bar{height:100%;width:0%}
-    .right{background:#d9f7e0}
-    .wrong{background:#ffe3e3}
+    .bar{height:100%;width:0%;background:#60a5fa}
     .muted{color:var(--muted)}
-    .kps{font-size:12px}
     .hidden{display:none}
     .header{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
     .header .spacer{flex:1}
     .badge{border:1px solid var(--border);border-radius:999px;padding:6px 10px;background:#fff}
-    .pass{color:#15803d}
-    .fail{color:var(--bad)}
+
     /* Soru haritası */
     .mapBtn{margin-left:auto}
     .mapWrap{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
@@ -40,7 +36,6 @@
     .qbtn{border:1px solid var(--border);background:#fff;border-radius:8px;padding:8px 0;text-align:center;cursor:pointer;font-size:13px}
     .qbtn.ans{background:#eafff1;border-color:#b7f3c8}
     .qbtn.cur{background:#e0e7ff;border-color:#c7d2fe}
-    .qbtn.blank{background:#f8fafc}
     .mapfooter{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
     .legend{display:flex;gap:10px;align-items:center}
     .lg{display:flex;gap:6px;align-items:center}
@@ -48,6 +43,39 @@
     .dot.ans{background:#eafff1;border-color:#b7f3c8}
     .dot.cur{background:#e0e7ff;border-color:#c7d2fe}
     .close{border:none;background:#f1f5f9;padding:8px 10px;border-radius:8px;cursor:pointer}
+
+	/* Doğru Cevabı Göster */
+    .opt-correct{
+    background:#e7f8ee;
+    border-color:var(--ok);
+    color:var(--oktext);
+    font-weight:bold;
+}
+    .opt-wrong{
+    background:#fde8e8;
+    border-color:var(--bad);
+    color:var(--badtext);
+    font-weight:bold;
+}
+    .opt-fadeWrong{
+    background:#fff5f5;
+    border-color:#fecaca;
+    color:#9f1239;
+    font-weight:bold;
+}
+
+
+    /* Sonuç/Review */
+    .stats{display:flex;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
+    .pill{border-radius:999px;padding:6px 10px;border:1px solid var(--border);background:#fff}
+    .pill.ok{border-color:#86efac;background:#ecfdf5;color:#065f46}
+    .pill.bad{border-color:#fecaca;background:#fff1f2;color:#991b1b}
+    .pill.blank{border-color:#fde68a;background:#fffbeb;color:#92400e}
+    .review-item{border-top:1px dashed #e5e7eb;padding:12px 0}
+    .ansline{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+    .tag{font-family:ui-monospace,Menlo,monospace;padding:2px 6px;border-radius:6px;border:1px solid var(--border);background:#fff}
+    .tag.ok{background:#ecfdf5;border-color:#86efac;color:#065f46}
+    .tag.bad{background:#fff1f2;border-color:#fecaca;color:#991b1b}
   </style>
 </head>
 <body>
@@ -67,6 +95,7 @@
   <div class="btns">
     <button id="prev">Geri</button>
     <button id="next">İleri</button>
+    <button id="showAnswer" disabled>Doğru Cevabı Göster</button>
     <button id="submit">Gönder</button>
   </div>
 
@@ -89,12 +118,12 @@
   </div>
 
 <script>
-/* ================= SETTINGS ================= */
-const DURATION_MIN = 300;     // dakika
-const PASS_THRESHOLD = 175;    // geçiş eşiği
+/* ============== AYARLAR ============== */
+const DURATION_MIN = 300;      // dakika
+const PASS_THRESHOLD = 70;     // geçiş eşiği
 
-/* ================= QUESTIONS =================
-  sorularınızı dilerseniz bu dizinin başına ekleyebilirsiniz.
+/* ============== QUESTIONS ==============
+   Burayı aynen havuzunuzla değiştirin.
    Şema: { id, text, options[5], answer(0-4), prompt? }
 */
 const QUESTIONS = [
@@ -2829,180 +2858,234 @@ const QUESTIONS = [
     "100.000x0,506÷(1-(1÷(1+0,0506)^12))"
   ],
   answer:1
+},
+{
+  id:232,
+  text:"Aşağıdakilerden hangisi Türkiye’de faaliyet gösteren finansal kuruluşlardan değildir?",
+  options:[
+    "Bankalar",
+    "Finansal Kiralama",
+    "Faktoring",
+    "Varlık Yönetim",
+    "Sigorta Şirketleri"
+  ],
+  answer:4
+},
+{
+  id:233,
+  text:"Aşağıdakilerden hangisi kamu kalkınma ve yatırım bankalarından değildir?",
+  options:[
+    "İller Bankası A.Ş.",
+    "Türkiye İhracat Kredi Bankası A.Ş. (Türk Eximbank)",
+    "Birleşik Fon Bankası A.Ş.",
+    "Türkiye Kalkınma ve Yatırım Bankası A.Ş.",
+    "Takasbank (İstanbul Takas ve Saklama Bankası A.Ş.)"
+  ],
+  answer:2
+},
+{
+  id:234,
+  text:"Aşağıdaki aşamalar esnaf kredileri kefalet sisteminin kredi tahsis ve ödeme sürecinden alınmıştır. Bu aşamalar anlamlı bir sıraya konulmak istense, doğru sıralama aşağıdaki şıklardan hangisi olurdu?\n\nI. Halkbank şubeleri kanalıyla istihbarat ve kredi tahsisi\nII. Esnaf ve sanatkar kredi kefalet kooperatifi tarafından maddi teminat tesis edilmesi\nIII. Uygun görülen müşterilere kefalet tesisi\nIV. Esnaf odalarına kayıtlı esnaf ve sanatkarların kredi talebi",
+  options:[
+    "I-II-III-IV",
+    "IV-III-II-I",
+    "IV-II-III-I",
+    "II-I-IV-III",
+    "III-IV-II-I"
+  ],
+  answer:2
 }
-
-
 ];
 
-/* ================= STATE & ELEMENTS ================= */
-let idx = 0;
-const answers = new Array(QUESTIONS.length).fill(null);
-let submitted = false;
+/* ============== DURUM ============== */
+let cur = 0;
+let answers = new Map(); // qid -> index
+let shown = new Set();   // “Doğru Cevabı Göster”e basılan sorular
 
+const bar = document.getElementById('bar');
 const screen = document.getElementById('screen');
-const result = document.getElementById('result');
+const ansCountEl = document.getElementById('ansCount');
+const totalQEl = document.getElementById('totalQ');
+const passEl = document.getElementById('passThreshold');
 const btnPrev = document.getElementById('prev');
 const btnNext = document.getElementById('next');
 const btnSubmit = document.getElementById('submit');
-const bar = document.getElementById('bar');
-const timerEl = document.getElementById('timer');
-const ansCountEl = document.getElementById('ansCount');
-const totalQEl = document.getElementById('totalQ');
-const passThEl = document.getElementById('passThreshold');
-
+const btnShow = document.getElementById('showAnswer');
 const mapWrap = document.getElementById('mapWrap');
 const mapGrid = document.getElementById('mapGrid');
-document.getElementById('openMap').onclick = ()=>{ buildMap(); mapWrap.style.display='flex'; };
-document.getElementById('closeMap').onclick = ()=> mapWrap.style.display='none';
-mapWrap.addEventListener('click',e=>{ if(e.target===mapWrap) mapWrap.style.display='none'; });
+const openMap = document.getElementById('openMap');
+const closeMap = document.getElementById('closeMap');
+const resultBox = document.getElementById('result');
 
 totalQEl.textContent = QUESTIONS.length;
-passThEl.textContent = PASS_THRESHOLD;
+passEl.textContent = PASS_THRESHOLD;
 
-/* ================= RENDERERS ================= */
-function renderQuestion(i){
-  const q = QUESTIONS[i];
-  const chosen = answers[i];
-  const header = `<div class="row"><strong>Soru ${i+1} / ${QUESTIONS.length}</strong></div>`;
-  const prompt = q.prompt ? `<div class="row kps muted">${q.prompt.replaceAll("\n","<br>")}</div>` : "";
-  const opts = q.options.map((opt,oi)=>`
-    <label>
-      <input type="radio" name="opt" value="${oi}" ${chosen===oi?"checked":""}/> ${String.fromCharCode(65+oi)}) ${opt}
-    </label>`).join("");
-  screen.innerHTML = header + `<div class="row">${q.text}</div>` + prompt + `<div class="row opts">${opts}</div>`;
-  updateNavButtons();
-  updateProgress();
-  updateMapCurrent();
+/* ============== ZAMANLAYICI ============== */
+const timerEl = document.getElementById('timer');
+let end = Date.now() + DURATION_MIN*60*1000;
+const t = setInterval(()=>{
+  const rem = Math.max(0, end - Date.now());
+  const m = Math.floor(rem/60000), s = Math.floor((rem%60000)/1000);
+  timerEl.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  if(rem<=0){ clearInterval(t); finalize(); }
+}, 250);
+
+/* ============== RENDER ============== */
+function render(){
+  const q = QUESTIONS[cur];
+  const picked = answers.get(q.id);
+
+  const opts = q.options.map((opt,i)=> {
+    const checked = picked===i ? 'checked' : '';
+    return `
+      <label class="opt" data-idx="${i}">
+        <input type="radio" name="opt" ${checked} />
+        <span>${opt}</span>
+      </label>`;
+  }).join('');
+
+  screen.innerHTML = `
+    <div class="row muted">Soru ${cur+1} / ${QUESTIONS.length} · ID: ${q.id}</div>
+    <div class="row"><strong>${q.text}</strong></div>
+    ${q.prompt ? `<pre style="white-space:pre-wrap;background:${'var(--tile)'};padding:10px;border-radius:8px;border:1px solid var(--border)}">${q.prompt}</pre>` : ``}
+    <div class="opts">${opts}</div>
+  `;
+
+  btnPrev.disabled = cur===0;
+  btnNext.disabled = cur===QUESTIONS.length-1;
+
+  btnShow.disabled = (picked===undefined);
+
+  if (shown.has(q.id)) applyShowColors(q, picked);
+
+  const done = answers.size;
+  ansCountEl.textContent = done;
+  bar.style.width = `${(done/QUESTIONS.length)*100}%`;
+
+  buildMap();
 }
 
-function updateNavButtons(){
-  btnPrev.disabled = idx===0 || submitted;
-  btnNext.disabled = idx===QUESTIONS.length-1 || submitted;
-  btnSubmit.disabled = submitted;
+function applyShowColors(q, pickedIdx){
+  document.querySelectorAll('.opts label').forEach(l=>{
+    l.classList.remove('opt-correct','opt-wrong','opt-fadeWrong');
+  });
+  const labels = [...document.querySelectorAll('.opts label')];
+  const correctIdx = q.answer;
+
+  if (pickedIdx === correctIdx){
+    labels.forEach((lab, i)=>{
+      if(i===pickedIdx) lab.classList.add('opt-correct');
+      else lab.classList.add('opt-fadeWrong');
+    });
+  }else{
+    labels.forEach((lab, i)=>{
+      if(i===correctIdx) lab.classList.add('opt-correct');
+      else if(i===pickedIdx) lab.classList.add('opt-wrong');
+      else lab.classList.add('opt-fadeWrong');
+    });
+  }
 }
 
-function updateProgress(){
-  const answered = answers.filter(a=>a!==null).length;
-  ansCountEl.textContent = answered;
-  const pct = Math.round(100*answered/QUESTIONS.length);
-  bar.style.width = pct + "%";
-  bar.style.background = pct===100 ? "#16a34a" : "#60a5fa";
-}
-
-/* ================= EVENTS ================= */
-screen.addEventListener('change', e=>{
-  if(submitted) return;
-  if(e.target.name==='opt'){
-    answers[idx] = Number(e.target.value);
-    updateProgress();
-    updateMapCell(idx);
+/* ============== EVENTS ============== */
+screen.addEventListener('change', (e)=>{
+  if(e.target && e.target.name==='opt'){
+    const idx = [...screen.querySelectorAll('input[name="opt"]')].findIndex(x=>x.checked);
+    answers.set(QUESTIONS[cur].id, idx);
+    btnShow.disabled = false;
+    buildMap();
+    const done = answers.size;
+    ansCountEl.textContent = done;
+    bar.style.width = `${(done/QUESTIONS.length)*100}%`;
   }
 });
 
-btnPrev.onclick = ()=>{ if(submitted) return; idx=Math.max(0,idx-1); renderQuestion(idx); };
-btnNext.onclick = ()=>{ if(submitted) return; idx=Math.min(QUESTIONS.length-1,idx+1); renderQuestion(idx); };
-btnSubmit.onclick = ()=> trySubmit(false);
+btnPrev.onclick = ()=>{ cur=Math.max(0,cur-1); render(); };
+btnNext.onclick = ()=>{ cur=Math.min(QUESTIONS.length-1,cur+1); render(); };
 
-/* ================= SUBMIT & SCORE ================= */
-function trySubmit(fromTimer){
-  if(submitted) return;
+btnShow.onclick = ()=>{
+  const q = QUESTIONS[cur];
+  const picked = answers.get(q.id);
+  if (picked===undefined) return;
+  shown.add(q.id);
+  applyShowColors(q, picked);
+};
 
-  if(!fromTimer){
-    const unanswered = answers.findIndex(a=>a===null);
-    if(unanswered!==-1){
-      idx = unanswered; renderQuestion(idx);
-      alert("Tüm soruları işaretleyin.");
-      return;
-    }
-  }
+btnSubmit.onclick = finalize;
 
-  submitted = true;
-  btnPrev.disabled = true; btnNext.disabled = true; btnSubmit.disabled = true;
+openMap.onclick = ()=>{ mapWrap.style.display='flex'; };
+closeMap.onclick = ()=>{ mapWrap.style.display='none'; };
+mapWrap.addEventListener('click', e=>{ if(e.target===mapWrap) mapWrap.style.display='none'; });
 
-  const correct = QUESTIONS.reduce((s,q,i)=>s+(answers[i]===q.answer?1:0),0);
-  const blanks  = answers.filter(a=>a===null).length;
-  const wrong   = QUESTIONS.length - correct - blanks;
-  const passed  = correct >= PASS_THRESHOLD;
-  const percent = ((100*correct)/QUESTIONS.length).toFixed(1);
-
-  const review = QUESTIONS.map((q,i)=>{
-    const chosen = answers[i];
-    const ok = chosen===q.answer;
-    const your = chosen!=null ? `${String.fromCharCode(65+chosen)}) ${q.options[chosen]}` : "—";
-    const corr = `${String.fromCharCode(65+q.answer)}) ${q.options[q.answer]}`;
-    return `
-      <div class="card ${ok?"right":"wrong"}">
-        <div><strong>Soru ${i+1}:</strong> ${q.text}</div>
-        ${q.prompt?`<div class="kps muted">${q.prompt.replaceAll("\n","<br>")}</div>`:""}
-        <div class="row"><strong>Senin cevabın:</strong> ${your}</div>
-        <div class="row"><strong>Doğru cevap:</strong> ${corr}</div>
-      </div>`;
-  }).join("");
-
-  result.innerHTML = `
-    <h2>Sonuç</h2>
-    <p>
-      Doğru: <strong>${correct}</strong> |
-      Yanlış: <strong>${wrong}</strong> |
-      Boş: <strong>${blanks}</strong> |
-      Yüzde: <strong>%${percent}</strong>
-    </p>
-    <p class="${passed?'pass':'fail'}"><strong>${passed ? "Geçti" : "Kaldı"}</strong> (Eşik: ${PASS_THRESHOLD} doğru)</p>
-    ${review}
-    <div class="muted kps">Not: Doğru/yanlışlar bu cihazda görüntülenir.</div>`;
-  result.classList.remove('hidden');
-  window.scrollTo({top: result.offsetTop, behavior: "smooth"});
-  clearInterval(timerId);
-}
-
-/* ================= TIMER ================= */
-let remaining = DURATION_MIN * 60; // seconds
-function fmt(sec){
-  const m = Math.floor(sec/60).toString().padStart(2,'0');
-  const s = Math.floor(sec%60).toString().padStart(2,'0');
-  return `${m}:${s}`;
-}
-timerEl.textContent = fmt(remaining);
-const timerId = setInterval(()=>{
-  remaining--;
-  timerEl.textContent = fmt(remaining);
-  if(remaining<=0){
-    timerEl.textContent = "00:00";
-    trySubmit(true);
-  }
-},1000);
-
-/* ================= MAP (Soru Haritası) ================= */
 function buildMap(){
-  mapGrid.innerHTML = "";
-  for(let i=0;i<QUESTIONS.length;i++){
-    const b = document.createElement('button');
-    b.className = 'qbtn blank';
-    b.textContent = (i+1);
-    b.onclick = ()=>{ idx=i; renderQuestion(idx); mapWrap.style.display='none'; };
-    mapGrid.appendChild(b);
-  }
-  refreshMapAll();
-}
-function refreshMapAll(){
-  for(let i=0;i<QUESTIONS.length;i++) updateMapCell(i);
-  updateMapCurrent();
-}
-function updateMapCell(i){
-  const cell = mapGrid.children[i];
-  if(!cell) return;
-  cell.classList.remove('blank','ans','cur');
-  if(answers[i]==null) cell.classList.add('blank'); else cell.classList.add('ans');
-  if(i===idx) cell.classList.add('cur');
-}
-function updateMapCurrent(){
-  for(let i=0;i<mapGrid.children.length;i++){
-    mapGrid.children[i].classList.toggle('cur', i===idx);
-  }
+  mapGrid.innerHTML = '';
+  QUESTIONS.forEach((q, i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'qbtn';
+    if(answers.has(q.id)) btn.classList.add('ans');
+    if(i===cur) btn.classList.add('cur');
+    btn.textContent = i+1;
+    btn.onclick = ()=>{ cur=i; render(); mapWrap.style.display='none'; };
+    mapGrid.appendChild(btn);
+  });
 }
 
-/* ================= START ================= */
-renderQuestion(idx);
+/* ============== SKORLAMA & REVIEW ============== */
+function letter(i){ return ['A','B','C','D','E'][i] ?? '-'; }
+
+function finalize(){
+  // doğru/yanlış/boş
+  let correct = 0, wrong = 0, blank = 0;
+  QUESTIONS.forEach(q=>{
+    const pick = answers.get(q.id);
+    if(pick===undefined) blank++;
+    else if(pick===q.answer) correct++;
+    else wrong++;
+  });
+
+  const pass = correct>=PASS_THRESHOLD;
+
+  // üst istatistik
+  resultBox.classList.remove('hidden');
+  resultBox.innerHTML = `
+    <h3>Sonuç</h3>
+    <div class="stats">
+      <div class="pill ok">Doğru: <strong>${correct}</strong></div>
+      <div class="pill bad">Yanlış: <strong>${wrong}</strong></div>
+      <div class="pill blank">Boş: <strong>${blank}</strong></div>
+      <div class="pill">Toplam: ${QUESTIONS.length}</div>
+      <div class="pill ${pass?'ok':'bad'}">${pass ? 'GEÇTİ' : 'KALDI'}</div>
+    </div>
+    <h4>Detaylı Cevap Dökümü</h4>
+    <div id="review"></div>
+  `;
+
+  // tüm sorular için: soru metni + kullanıcının şıkkı + doğru şık
+  const rev = document.getElementById('review');
+  rev.innerHTML = QUESTIONS.map((q, idx)=>{
+    const pick = answers.get(q.id);
+    const isBlank = pick===undefined;
+    const isCorrect = !isBlank && pick===q.answer;
+
+    const pickBlock = isBlank
+      ? `<span class="tag">Seçim: —</span>`
+      : `<span class="tag ${isCorrect?'ok':'bad'}">Seçim: ${letter(pick)}) ${q.options[pick]}</span>`;
+
+    const correctBlock = `<span class="tag ok">Doğru: ${letter(q.answer)}) ${q.options[q.answer]}</span>`;
+
+    return `
+      <div class="review-item">
+        <div><strong>${idx+1}. ${q.text}</strong></div>
+        ${q.prompt ? `<pre style="white-space:pre-wrap;background:${'var(--tile)'};padding:8px;border-radius:8px;border:1px solid var(--border);margin-top:6px">${q.prompt}</pre>` : ``}
+        <div class="ansline">${pickBlock}${correctBlock}</div>
+      </div>
+    `;
+  }).join('');
+
+  // kilitle (sadece cevaplamayı)
+  btnPrev.disabled = btnNext.disabled = btnShow.disabled = true;
+  screen.querySelectorAll('input[type="radio"]').forEach(r=>r.disabled=true);
+}
+render();
 </script>
 </body>
 </html>
