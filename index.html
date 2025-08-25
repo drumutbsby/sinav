@@ -26,8 +26,9 @@
     .header{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
     .header .spacer{flex:1}
     .badge{border:1px solid var(--border);border-radius:999px;padding:6px 10px;background:#fff}
+    .context{display:flex;gap:8px;align-items:center}
 
-    /* Soru haritası */
+    /* Harita */
     .mapBtn{margin-left:auto}
     .mapWrap{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
     .map{max-width:820px;width:100%;background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px}
@@ -46,6 +47,14 @@
     .dot.ans{background:#eafff1;border-color:#b7f3c8}
     .dot.cur{background:#e0e7ff;border-color:#c7d2fe}
     .close{border:none;background:#f1f5f9;padding:8px 10px;border-radius:8px;cursor:pointer}
+
+    /* Konu Seç modal */
+    .catWrap{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:16px;z-index:60}
+    .cat{max-width:720px;width:100%;background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px}
+    .catList{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin:8px 0 12px}
+    .cbtn{border:1px solid var(--border);background:#fff;border-radius:10px;padding:10px;cursor:pointer;text-align:left}
+    .cbtn.active{background:#ecfeff;border-color:#a5f3fc}
+    .cmeta{font-size:12px;color:var(--muted);margin-top:6px}
 
     /* Doğru Cevabı Göster */
     .opt-correct{background:#e7f8ee;border-color:var(--ok);color:var(--oktext);font-weight:bold}
@@ -71,8 +80,10 @@
   <div class="header">
     <div class="badge">Süre: <strong id="timer">300:00</strong></div>
     <div class="badge">Yanıtlanan: <strong id="ansCount">0</strong>/<span id="totalQ">0</span></div>
-    <div class="badge">Eşik: <strong id="passThreshold">164</strong> doğru</div>
+    <div class="badge">Eşik: <strong>%70</strong></div>
+    <div class="context badge">Konu: <strong id="ctxCat">Tüm Sorular</strong></div>
     <div class="spacer"></div>
+    <button id="openCat" class="badge">Konu Seç</button>
     <button id="openMap" class="badge mapBtn">Soru Haritası</button>
   </div>
 
@@ -88,7 +99,7 @@
 
   <div id="result" class="card hidden"></div>
 
-  <!-- Soru Haritası Modal -->
+  <!-- Soru Haritası -->
   <div id="mapWrap" class="mapWrap" aria-hidden="true">
     <div class="map">
       <h3>Soru Haritası</h3>
@@ -105,18 +116,28 @@
     </div>
   </div>
 
-<script>
-/* ============== AYARLAR ============== */
-const DURATION_MIN = 300;      // dakika
-const PASS_THRESHOLD = 164;     // geçiş eşiği
-const RANGE_SIZE = 5;          // harita gruplama: 5'erli
+  <!-- Konu Seç -->
+  <div id="catWrap" class="catWrap" aria-hidden="true">
+    <div class="cat">
+      <h3>Konu / Kategori Seç</h3>
+      <div id="catList" class="catList"></div>
+      <div style="display:flex;justify-content:flex-end;gap:8px">
+        <button id="closeCat" class="close">Kapat</button>
+      </div>
+    </div>
+  </div>
 
-/* ============== QUESTIONS ==============
-   Burayı aynen havuzunuzla değiştirin.
-   Şema: { id, text, options[5], answer(0-4), prompt? }
+<script>
+/* ====== AYARLAR ====== */
+const DURATION_MIN = 300;
+const RANGE_SIZE   = 5;
+
+/* ====== TÜM SORULAR ======
+   Burayı kendi havuzunla doldur.
+   Şema: { id:Number, text:String, options:String[5], answer:0-4, prompt?:String }
 */
-const QUESTIONS = [
-  {
+const ALL_QUESTIONS = [
+{
     id: 1,
     difficulty: "Kolay",
     text: "Aşağıdakilerden hangisi dijital dönüşüm sürecinin bir çıktısı olarak değerlendirilebilir?",
@@ -2884,35 +2905,78 @@ const QUESTIONS = [
   ],
   answer:2
 }
+
 ];
 
-/* ============== DURUM ============== */
+/* ====== YARDIMCI ====== */
+function rng(a,b){ const out=[]; for(let i=a;i<=b;i++) out.push(i); return out; }
+
+/* ====== KATEGORİLER ====== */
+const CATEGORIES = [
+  { key:'all', label:'Tüm Sorular', type:'all' },
+
+  { key:'dijital', label:'Dijital Dönüşüm', type:'ids',
+    ids:[1,2,3,195,196,197,198] },
+
+  { key:'distic', label:'Dış Ticaret (4–28)', type:'ids',
+    ids:[...rng(4,28)] },
+
+  { key:'hazine', label:'Hazine Ürünleri (29–52)', type:'ids',
+    ids:[...rng(29,52)] },
+
+  { key:'proje', label:'Proje Yönetimi (53–82)', type:'ids',
+    ids:[...rng(53,82)] },
+
+  { key:'finokur', label:'Finansal Okuryazarlık', type:'ids',
+    ids:[...rng(83,120),122,199,200] },
+
+  { key:'surdur', label:'Sürdürülebilirlik (121–150, 122 hariç)', type:'ids',
+    ids:[121, ...rng(123,150)] },
+
+  { key:'hukuk', label:'Temel Hukuk (151–194)', type:'ids',
+    ids:[...rng(151,194)] },
+
+  { key:'finmat', label:'Temel Finans Matematiği (201–231)', type:'ids',
+    ids:[...rng(201,231)] },
+
+  { key:'genel', label:'Genel Bankacılık ve Halkbank', type:'ids',
+    ids:[232,233,234] },
+];
+
+/* ====== DURUM ====== */
+let ACTIVE = [];
 let cur = 0;
-let answers = new Map(); // qid -> index
-let shown = new Set();   // “Doğru Cevabı Göster”e basılan sorular
-let examFinished = false; // sayfadan ayrılma uyarısı için
+let answers = new Map();
+let shown = new Set();
+let examFinished = false;
+let activeCategoryKey = 'all';
 let activeRangeIndex = 0;
 
-const bar = document.getElementById('bar');
-const screen = document.getElementById('screen');
-const ansCountEl = document.getElementById('ansCount');
-const totalQEl = document.getElementById('totalQ');
-const passEl = document.getElementById('passThreshold');
-const btnPrev = document.getElementById('prev');
-const btnNext = document.getElementById('next');
+/* ====== EL ====== */
+const bar       = document.getElementById('bar');
+const screen    = document.getElementById('screen');
+const ansCountEl= document.getElementById('ansCount');
+const totalQEl  = document.getElementById('totalQ');
+const btnPrev   = document.getElementById('prev');
+const btnNext   = document.getElementById('next');
 const btnSubmit = document.getElementById('submit');
-const btnShow = document.getElementById('showAnswer');
+const btnShow   = document.getElementById('showAnswer');
+const resultBox = document.getElementById('result');
+const timerEl   = document.getElementById('timer');
+const ctxCatEl  = document.getElementById('ctxCat');
+
 const mapWrap = document.getElementById('mapWrap');
 const mapGrid = document.getElementById('mapGrid');
-const rangeRow = document.getElementById('rangeRow');
+const rangeRow= document.getElementById('rangeRow');
 const openMap = document.getElementById('openMap');
-const closeMap = document.getElementById('closeMap');
-const resultBox = document.getElementById('result');
+const closeMap= document.getElementById('closeMap');
 
-totalQEl.textContent = QUESTIONS.length;
-passEl.textContent = PASS_THRESHOLD;
+const catWrap  = document.getElementById('catWrap');
+const catList  = document.getElementById('catList');
+const openCat  = document.getElementById('openCat');
+const closeCat = document.getElementById('closeCat');
 
-/* ============== SAYFADAN AYRILMA UYARISI ============== */
+/* ====== SAYFADAN AYRILMA UYARISI ====== */
 window.addEventListener('beforeunload', (e)=>{
   if (!examFinished && answers.size > 0) {
     e.preventDefault();
@@ -2921,22 +2985,66 @@ window.addEventListener('beforeunload', (e)=>{
   }
 });
 
-/* ============== ZAMANLAYICI ============== */
-const timerEl = document.getElementById('timer');
+/* ====== ZAMANLAYICI ====== */
 let end = Date.now() + DURATION_MIN*60*1000;
 const t = setInterval(()=>{
   const rem = Math.max(0, end - Date.now());
   const m = Math.floor(rem/60000), s = Math.floor((rem%60000)/1000);
   timerEl.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  if(rem<=0){
-    clearInterval(t);
-    finalize();
-  }
+  if(rem<=0){ clearInterval(t); finalize(); }
 }, 250);
 
-/* ============== RENDER ============== */
+/* ====== KATEGORİ ====== */
+function applyCategory(key){
+  activeCategoryKey = key;
+  const cat = CATEGORIES.find(c=>c.key===key) || CATEGORIES[0];
+
+  if(cat.type==='all'){
+    ACTIVE = [...ALL_QUESTIONS];
+  } else if(cat.type==='ids'){
+    const set = new Set((cat.ids||[]).map(Number));
+    ACTIVE = ALL_QUESTIONS.filter(q=> set.has(Number(q.id)));
+  } else {
+    ACTIVE = [...ALL_QUESTIONS];
+  }
+
+  if(ACTIVE.length===0){ ACTIVE=[...ALL_QUESTIONS]; activeCategoryKey='all'; }
+
+  ctxCatEl.textContent = cat.label || 'Tüm Sorular';
+  cur = 0;
+  activeRangeIndex = 0;
+  totalQEl.textContent = ACTIVE.length;
+  updateProgress();
+  render();
+  buildMap();
+  buildCatList();
+}
+
+function buildCatList(){
+  catList.innerHTML = '';
+  CATEGORIES.forEach(cat=>{
+    let tmp = [];
+    if(cat.type==='all') tmp = ALL_QUESTIONS;
+    else if(cat.type==='ids'){ const set=new Set((cat.ids||[]).map(Number)); tmp = ALL_QUESTIONS.filter(q=> set.has(Number(q.id))); }
+
+    const count = tmp.length;
+    const answered = tmp.reduce((a,q)=> a + (answers.has(q.id)?1:0), 0);
+    const passNeeded = Math.ceil(0.70 * Math.max(1,count));
+
+    const btn = document.createElement('button');
+    btn.className = 'cbtn' + (cat.key===activeCategoryKey ? ' active':'');
+    btn.innerHTML = `
+      <div><strong>${cat.label}</strong></div>
+      <div class="cmeta">Soru: ${count} · İşaretli: ${answered} · Eşik: ≥${passNeeded} (%70)</div>
+    `;
+    btn.onclick = ()=>{ applyCategory(cat.key); catWrap.style.display='none'; };
+    catList.appendChild(btn);
+  });
+}
+
+/* ====== RENDER ====== */
 function render(){
-  const q = QUESTIONS[cur];
+  const q = ACTIVE[cur];
   const picked = answers.get(q.id);
 
   const opts = q.options.map((opt,i)=> {
@@ -2949,26 +3057,27 @@ function render(){
   }).join('');
 
   screen.innerHTML = `
-    <div class="row muted">Soru ${cur+1} / ${QUESTIONS.length} · ID: ${q.id}</div>
+    <div class="row muted">Soru ${cur+1} / ${ACTIVE.length} · ID: ${q.id}</div>
     <div class="row"><strong>${q.text}</strong></div>
     ${q.prompt ? `<pre style="white-space:pre-wrap;background:${'var(--tile)'};padding:10px;border-radius:8px;border:1px solid var(--border)}">${q.prompt}</pre>` : ``}
     <div class="opts">${opts}</div>
   `;
 
   btnPrev.disabled = cur===0;
-  btnNext.disabled = cur===QUESTIONS.length-1;
-
+  btnNext.disabled = cur===ACTIVE.length-1;
   btnShow.disabled = (picked===undefined);
 
   if (shown.has(q.id)) applyShowColors(q, picked);
 
-  const done = answers.size;
-  ansCountEl.textContent = done;
-  bar.style.width = `${(done/QUESTIONS.length)*100}%`;
-
-  // aktif aralığı cur'a göre güncelle
+  updateProgress();
   activeRangeIndex = Math.floor(cur / RANGE_SIZE);
-  buildMap(); // aralık başlıkları + o aralıktaki sorular
+  buildMap();
+}
+
+function updateProgress(){
+  const done = ACTIVE.reduce((a,q)=> a + (answers.has(q.id)?1:0), 0);
+  ansCountEl.textContent = done;
+  bar.style.width = `${(done / Math.max(1,ACTIVE.length)) * 100}%`;
 }
 
 function applyShowColors(q, pickedIdx){
@@ -2992,71 +3101,67 @@ function applyShowColors(q, pickedIdx){
   }
 }
 
-/* ============== EVENTS ============== */
+/* ====== EVENTS ====== */
 screen.addEventListener('change', (e)=>{
   if(e.target && e.target.name==='opt'){
     const idx = [...screen.querySelectorAll('input[name="opt"]')].findIndex(x=>x.checked);
-    answers.set(QUESTIONS[cur].id, idx);
+    answers.set(ACTIVE[cur].id, idx);
     btnShow.disabled = false;
-    const done = answers.size;
-    ansCountEl.textContent = done;
-    bar.style.width = `${(done/QUESTIONS.length)*100}%`;
-    buildMap(); // haritadaki işaretli durumu güncelle
+    updateProgress();
+    buildMap();
   }
 });
 
-btnPrev.onclick = ()=>{ cur=Math.max(0,cur-1); render(); };
-btnNext.onclick = ()=>{ cur=Math.min(QUESTIONS.length-1,cur+1); render(); };
+document.getElementById('prev').onclick = ()=>{ cur=Math.max(0,cur-1); render(); };
+document.getElementById('next').onclick = ()=>{ cur=Math.min(ACTIVE.length-1,cur+1); render(); };
 
-btnShow.onclick = ()=>{
-  const q = QUESTIONS[cur];
+document.getElementById('showAnswer').onclick = ()=>{
+  const q = ACTIVE[cur];
   const picked = answers.get(q.id);
   if (picked===undefined) return;
   shown.add(q.id);
   applyShowColors(q, picked);
 };
 
-btnSubmit.onclick = finalize;
+document.getElementById('submit').onclick = finalize;
 
-openMap.onclick = ()=>{
-  buildMap();
-  mapWrap.style.display='flex';
-};
-closeMap.onclick = ()=>{ mapWrap.style.display='none'; };
+document.getElementById('openMap').onclick = ()=>{ buildMap(); mapWrap.style.display='flex'; };
+document.getElementById('closeMap').onclick = ()=>{ mapWrap.style.display='none'; };
 mapWrap.addEventListener('click', e=>{ if(e.target===mapWrap) mapWrap.style.display='none'; });
 
-/* ============== SORU HARİTASI ============== */
+document.getElementById('openCat').onclick = ()=>{ buildCatList(); catWrap.style.display='flex'; };
+document.getElementById('closeCat').onclick = ()=>{ catWrap.style.display='none'; };
+catWrap.addEventListener('click', e=>{ if(e.target===catWrap) catWrap.style.display='none'; });
+
+/* ====== HARİTA ====== */
 function buildMap(){
-  // 1) Aralık butonları
-  const total = QUESTIONS.length;
+  const total = ACTIVE.length;
   const rangeCount = Math.ceil(total / RANGE_SIZE);
   rangeRow.innerHTML = '';
   for(let ri=0; ri<rangeCount; ri++){
-    const start = ri*RANGE_SIZE + 1; // 1-indexed gösterim
-    const end = Math.min((ri+1)*RANGE_SIZE, total);
+    const start = ri*RANGE_SIZE + 1;
+    const end   = Math.min((ri+1)*RANGE_SIZE, total);
     const rb = document.createElement('button');
     rb.className = 'rbtn' + (ri===activeRangeIndex ? ' active':'');
     rb.textContent = `${start}-${end}`;
     rb.onclick = ()=>{
       activeRangeIndex = ri;
       renderRangeGrid();
-      // aktif buton vurgusu
       [...rangeRow.children].forEach(b=>b.classList.remove('active'));
       rb.classList.add('active');
     };
     rangeRow.appendChild(rb);
   }
-  // 2) Aktif aralığın sorularını çiz
   renderRangeGrid();
 }
 
 function renderRangeGrid(){
-  const total = QUESTIONS.length;
-  const startIdx = activeRangeIndex * RANGE_SIZE;              // 0-indexed
-  const endIdx = Math.min(startIdx + RANGE_SIZE, total);       // slice end
+  const total = ACTIVE.length;
+  const startIdx = activeRangeIndex * RANGE_SIZE;
+  const endIdx   = Math.min(startIdx + RANGE_SIZE, total);
   mapGrid.innerHTML = '';
   for(let i=startIdx; i<endIdx; i++){
-    const q = QUESTIONS[i];
+    const q = ACTIVE[i];
     const btn = document.createElement('button');
     btn.className = 'qbtn';
     if(answers.has(q.id)) btn.classList.add('ans');
@@ -3071,36 +3176,37 @@ function renderRangeGrid(){
   }
 }
 
-/* ============== SKORLAMA & REVIEW ============== */
+/* ====== SKORLAMA & REVIEW (KATEGORİ BAZI) ====== */
 function letter(i){ return ['A','B','C','D','E'][i] ?? '-'; }
 
 function finalize(){
   let correct = 0, wrong = 0, blank = 0;
-  QUESTIONS.forEach(q=>{
+  ACTIVE.forEach(q=>{
     const pick = answers.get(q.id);
     if(pick===undefined) blank++;
     else if(pick===q.answer) correct++;
     else wrong++;
   });
-  const pass = correct>=PASS_THRESHOLD;
+  const need = Math.ceil(0.70 * ACTIVE.length);
+  const pass = correct >= need;
   examFinished = true;
 
   resultBox.classList.remove('hidden');
   resultBox.innerHTML = `
-    <h3>Sonuç</h3>
+    <h3>Sonuç · ${document.getElementById('ctxCat').textContent}</h3>
     <div class="stats">
       <div class="pill ok">Doğru: <strong>${correct}</strong></div>
       <div class="pill bad">Yanlış: <strong>${wrong}</strong></div>
       <div class="pill blank">Boş: <strong>${blank}</strong></div>
-      <div class="pill">Toplam: ${QUESTIONS.length}</div>
-      <div class="pill ${pass?'ok':'bad'}">${pass ? 'GEÇTİ' : 'KALDI'}</div>
+      <div class="pill">Toplam: ${ACTIVE.length}</div>
+      <div class="pill ${pass?'ok':'bad'}">${pass ? 'GEÇTİ' : 'KALDI'} · Eşik: ≥${need} (%70)</div>
     </div>
     <h4>Detaylı Cevap Dökümü</h4>
     <div id="review"></div>
   `;
 
   const rev = document.getElementById('review');
-  rev.innerHTML = QUESTIONS.map((q, idx)=>{
+  rev.innerHTML = ACTIVE.map((q, idx)=>{
     const pick = answers.get(q.id);
     const isBlank = pick===undefined;
     const isCorrect = !isBlank && pick===q.answer;
@@ -3124,8 +3230,11 @@ function finalize(){
   screen.querySelectorAll('input[type="radio"]').forEach(r=>r.disabled=true);
 }
 
-/* ============== INIT ============== */
-render();
+/* ====== INIT ====== */
+(function init(){
+  buildCatList();
+  applyCategory('all');
+})();
 </script>
 </body>
 </html>
