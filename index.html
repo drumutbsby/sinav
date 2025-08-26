@@ -753,7 +753,7 @@ const ALL_QUESTIONS = [
       "Para arzı/Enflasyon",
       "İthalat/İhracat"
     ],
-    answer: 4
+    answer: 2
   },
   {
     id: 53,
@@ -1916,7 +1916,7 @@ const ALL_QUESTIONS = [
 {
   id:154,
   text:"Aşağıdaki öncüllerden hangileri mirasın reddi ve iptal davası ile ilgili doğru ifadelerdir?",
-  prompt:"I. Mirasın reddi için mirasçıya tanınan süre 3 aydır.\nII. Alacaklının haklarını önlemek amacıyla yapılan miras reddine karşı alacaklı, ret kararının iptali için ayrı dava açabilir.\nIII. Ret tarihinden itibaren 6 ay iptal davası açma süresidir.\nIV. Borçlu mirasçı, terekedeki malların haczinden kaçınmak için mirası reddedebilir.",
+  prompt:"I. Mirasın reddi için mirasçıya tanınan süre 3 aydır.\nII. Alacaklının haklarını önlemek amacıyla yapılan miras reddine karşı alacaklı, ret kararının iptali için ayrı dava açabilir.\nIII. Ret tarihinden itibaren 6 ay iptal davası açma süresidir.\nIV. Mirasın reddinin geçerli kılınabilmesi için Yargıtay kararı aranır.",
   options:[
     "Yalnız I",
     "I ve II",
@@ -2877,7 +2877,7 @@ const ALL_QUESTIONS = [
     "Finansal Kiralama",
     "Faktoring",
     "Varlık Yönetim",
-    "Sigorta Şirketleri"
+    "Kamu İktisadi Teşekkülleri"
   ],
   answer:4
 },
@@ -2904,7 +2904,192 @@ const ALL_QUESTIONS = [
     "III-IV-II-I"
   ],
   answer:2
-}
+},
+
+
+  {
+    "id": 235,
+    "text": "Yukarıdakilerden hangileri mevduat stopajını etkileyen unsurlar arasında yer alır?",
+    "prompt": "Stopaj:\nI. Mevduat Kaynakları: TL, YP\nII. Mevduat Vadesine Göre: Kısa ve uzun vadeli\nIII. Mevduat Sahibine Göre: Gerçek veya tüzel kişiler\nIV. Mevduat Sahibinin Vergi Mükellefiyetine Göre: Tam/dar mükellef olmasına göre değişiklik\nV. Mevduat Sahibinin Ölümüne Göre: Vefat/bitkisel hayat",
+    "options": ["Yalnız I", "I ve II", "I, II ve III", "I, II, III ve IV", "I, II, III, IV ve V"],
+    "answer": 3
+  },
+  {
+    "id": 236,
+    "text": "“Banka nezdindeki mevduat, katılım fonu, emanet alacaklar; hak sahibinin en son talebi, işlemi, yazılı talimat tarihinden başlayarak (.....) yıl içinde aranmazsa zaman aşımına tabidir. Hak sahibine ulaşılamazsa; mevduat, katılım fonu ve emanetler iadeli taahhütlü mektupla uyarılır, bu uyarıya cevap verilmezse (....)’ye devredilir. (....)’ye devredilen bakiyelerin iadesi mümkün değildir.” Yukarıdaki boşluklara hangileri gelmelidir?",
+    "options": ["5 yıl – TCMB", "10 yıl – BDDK", "3 yıl – Takasbank", "10 yıl – TMSF", "5 yıl – Devlet Malzeme Ofisi"],
+    "answer": 3
+  },
+  {
+    "id": 237,
+    "text": "Verilen tanımlar ve kavramlarla doğru eşleştirme hangi seçenektedir?",
+    "prompt": "Kavramlar: I. Vade  II. Vade Sonu  III. Yılbaşı  IV. Virman  V. EFT  VI. FAST\nTanımlar: 1) Hesap açılış–kapanış tarihi arası süre. 2) Hesabın kapatıldığı tarih. 3) Faiz hesaplamasına esas tarih. 4) Aynı kişi/kurum hesapları arasındaki transfer. 5) TCMB nezdinde farklı bankalar arası transfer. 6) 7/24 anında transfer; sonuç ~25 sn.",
+    "options": [
+      "I-1, II-2, III-3, IV-4, V-5, VI-6",
+      "I-2, II-1, III-3, IV-4, V-6, VI-5",
+      "I-1, II-2, III-4, IV-5, V-1, VI-6",
+      "I-3, II-2, III-1, IV-5, V-4, VI-6",
+      "I-1, II-2, III-4, IV-3, V-5, VI-6"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 238,
+    "text": "Havalenin kabul edilmemesinin doğuracağı sonuçlar için aşağıdakilerden hangisi doğrudur?",
+    "options": [
+      "Yazılı beyan alınır; tutar emanet hesaba aktarılır; zaman aşımı 10 yıl, sonra TMSF’ye devredilir.",
+      "Bankaca para otomatik göndericiye iade edilir; kayıt/saklama yapılmaz.",
+      "Tutar Merkez Bankası’na aktarılır, 5 yıl içinde talep edilmezse bütçeye kaydedilir.",
+      "Yazılı beyan alınmasına gerek yoktur; kâr hanesine geçer.",
+      "Bloke hesaba alınır, 3 yıl sonunda Takasbank’a devredilir."
+    ],
+    "answer": 0
+  },
+  {
+    "id": 239,
+    "text": "Verilen tanımlar ve kavramlarla doğru eşleştirme hangi seçenekte verilmiştir?",
+    "prompt": "Kavramlar: I. Bilanço  II. Gelir Tablosu  III. Nakit Akış Tablosu  IV. Özkaynak Değişim Tablosu\nTanımlar: 1) Bir şirketin nakit akışının kaynaklarını ve belirli bir süre içinde nasıl kullanıldığını gösterir. 2) İşletmenin öz kaynaklarının belirli bir dönem içinde nasıl geliştiğine dair detaylı bir genel bakış sunar. 3) Belirli bir tarihteki varlıkları ve bu varlıkların hangi kaynaklar ile finanse edildiğini gösteren mali tablodur. 4) İşletmenin belirli bir dönemde elde ettiği tüm gelirler ile bu gelirlerin elde edilmesi için katlandığı giderleri ve bunların sonucunda oluşan kâr veya zararı gösterir.",
+    "options": [
+      "I-3, II-4, III-1, IV-2",
+      "I-4, II-3, III-2, IV-1",
+      "I-2, II-1, III-4, IV-3",
+      "I-1, II-4, III-3, IV-2",
+      "I-3, II-2, III-4, IV-1"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 240,
+    "text": "“Risklerin takibi ve kontrolü; kârlılık bazında gerçek performansın ölçülmesi ve müşterilere doğru fiyatlama yapılması amacı taşır.” Tanımı verilen kavram hangisidir?",
+    "options": ["Likidite Yönetimi", "Sermaye Yeterliliği Oranı", "Zorunlu Karşılık Oranı", "Fon Transfer Fiyatlaması/Fonlaması (FTF)", "Faiz Oranı Riski"],
+    "answer": 3
+  },
+  {
+    "id": 241,
+    "text": "Aşağıdakilerden hangisi zorunlu karşılıklarla ilgili doğru bir ifadedir?",
+    "options": [
+      "Oran arttıkça kredi hacmi genişler.",
+      "Oran azaldıkça bankaların kredi verme kapasitesi daralır.",
+      "Oran arttıkça kredi hacmi daralır.",
+      "Oran ile kredi hacmi arasında ilişki yoktur.",
+      "Oran azaldığında kredi hacmi aynı kalır."
+    ],
+    "answer": 2
+  },
+  {
+    "id": 242,
+    "text": "Aşağıda verilen kavramlar ve tanımların doğru eşleştirilmesi hangi seçenektedir?",
+    "prompt": "Kavramlar: I. Suç Geliri  II. Mal Varlığı  III. Aklama Suçu\nTanımlar: 1) Para ve değerle temsil edilebilen taşınır/taşınmaz,maddi-gayrimaddi her türlü mal ve haklar. 2) Alt sınırı 6 ay veya daha fazla hapis gerektiren suçtan kaynaklanan mal varlığı değerleri. 3) 6 ay veya daha fazla hapis cezası gerektiren bir suçtan kaynaklanan mal varlığı değerlerinin yurtdışına çıkarılması veya bunların gayrimeşru kaynağının gizlenmesi veya meşru bir yolla gelir elde edildiği konusunda kanaat uyandırmak maksadıyla çeşitli işlemlere tabi tutulmalarıdır..",
+    "options": [
+      "I-2, II-1, III-3",
+      "I-1, II-2, III-3",
+      "I-3, II-1, III-2",
+      "I-2, II-3, III-1",
+      "I-3, II-1, III-2"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 243,
+    "text": "SGA/TF kapsamında bankalara düşen yükümlülükler arasında aşağıdakilerden hangisi yer almaz?",
+    "prompt": "Bankanın Yükümlülükleri: I. Müşteri tanınması ve kimlik tespiti  II. Şüpheli işlem bildirimi  III. Eğitim ve iç denetim  IV. İç kontrol ve risk yönetimi sistemi  V. Uyum görevlisi ataması  VI. Bilgi ve belge verme yükümlülüğü  VII. Muhafaza ve ibraz  VIII. Müşterinin fiziki takibi",
+    "options": ["Yalnız VIII", "VII ve VIII", "V ve VII", "I ve VIII", "II ve VIII"],
+    "answer": 0
+  },
+  {
+    "id": 244,
+    "text": "“Yurt dışında bulunan para, döviz, altın, menkul kıymet ve diğer sermaye piyasası araçlarının milli ekonomiye kazandırılması, yurt içinde bulunan işletmelerin sermaye yapılarının güçlendirilmesi ve kamuya ek gelir girişiminin sağlanması amaçlanmaktadır.” tanımı hangi kavrama aittir?",
+    "options": ["Kara Para Aklama", "Zorunlu Karşılık", "Varlık Barışı", "Sermaye Yeterliliği Oranı", "Portföy Yatırımları"],
+    "answer": 2
+  },
+  {
+    "id": 245,
+    "text": "“ABD vatandaşları ve ABD vergi mükelleflerinin adil vergilendirilebilmesi için finansal bilgilerin ABD’ye raporlanmasını öngören uluslararası kanun” hangisidir?",
+    "options": ["Basel III", "CRS", "FATCA", "AML (Anti-Money Laundering)", "MiFID II"],
+    "answer": 2
+  },
+  {
+    "id": 246,
+    "text": "“DİBS ihalelerinde ve ikincil piyasa işlemlerinde etkinliği artırmak amacıyla önceden belirlenen kriterlere göre seçilen bankalara bazı hak ve görevler verilmesini içeren sistem” tanımı hangi kavrama aittir?",
+    "options": ["Repo İşlemleri", "Piyasa Yapıcılığı", "Açık Piyasa İşlemleri", "Likidite Yönetimi", "Tahvil Endekslemesi"],
+    "answer": 1
+  },
+  {
+    "id": 247,
+    "text": "Aşağıdakilerden hangisi piyasa yapıcılarının amaçlarından biri değildir?",
+    "options": [
+      "Kamu borç yönetimini geliştirmek",
+      "Kamu borçlanmasında istikrar sağlamak",
+      "DİBS’lerin ikincil piyasada derinleştirilmesi",
+      "Finansal sistemin geliştirilmesi",
+      "TCMB likidite senetlerinin stabilizasyonunun sağlanması"
+    ],
+    "answer": 4
+  },
+  {
+    "id": 248,
+    "text": "Piyasa yapıcısı olan bankalar için aşağıdaki boşlukları doldurunuz.",
+    "prompt": "• (…) rasyosunun kamu tarafından belirlenen sınırın altında olmaması\n• (…) piyasalardaki işlem hacminin kamu tarafından belirlenen sınırın üstünde olması",
+    "options": [
+      "Likidite Karşılama – Para",
+      "Sermaye Yeterlilik – Birincil ve ikincil",
+      "Faiz Riski – Sermaye",
+      "Artık Risk – Sermaye",
+      "Ülke Riski – Birincil ve ikincil"
+    ],
+    "answer": 1
+  },
+  {
+    "id": 249,
+    "text": "İhale (DİBS) türleriyle ilgili aşağıdaki tanımlardan hangisi yanlıştır?",
+    "options": [
+      "Geri Alım: Daha önce ihraç edilmiş olan DİBS’in vadesinden önce itfa edilmesi için yapılan ihaledir.",
+      "TAP: DİBS’in daha önce belirlenmiş fiyattan TCMB kanalıyla satışa sunulmasıdır.",
+      "ROT: Piyasa yapıcısı olan bankalara ihale günü belirli bir saate kadar verilen ihalede oluşacak ortalama fiyattan kağıt alma hakkını sağlayan tekliflerdir.",
+      "Değişim: Daha önce ihraç edilmiş DİBS’lerin ihraç yapılacak başka DİBS’lerle değiştirilmesidir.",
+      "Değişim: Daha sonra ihraç edilecek DİBS’lerin ihraç yapılacak başka DİBS’lerle değiştirilmesidir."
+    ],
+    "answer": 4
+  },
+  {
+    "id": 250,
+    "text": "Aşağıdakilerden hangisi Sabit Getirili Menkul Kıymetler (SGMK) hakkında yanlış bir ifadedir?",
+    "prompt": "SGMK Özellikleri: I. Belirli bir meblağı temsil eder. II. Alacaklılık hakkı sağlar. III. Yatırım aracıdır. IV. Nitelikli yatırımcılar bu ihalelere katılamaz. V. Dönemsel getiri sağlar. VI. Misli niteliktedir. VII. Seri halinde çıkarılır.",
+    "options": ["I", "III", "V", "VII", "IV"],
+    "answer": 4
+  },
+  {
+    "id": 251,
+    "text": "Aşağıda verilen kavramlar ve tanımlar doğru eşleştirildiğinde hangi seçenek doğrudur?",
+    "prompt": "Kavramlar: I. Devlet Bonoları  II. Devlet Tahvilleri  III. Gelire Endeksli Senetler  IV. Gelir Ortaklığı Senetleri\nTanımlar: 1) Hazine tarafından Gelir Ortaklığı Fonuna satılmak üzere; köprü, baraj, elektrik santrali, karayolu, telekomünikasyon gibi kamu kurum ve kuruluşlarına ait gelirlerin, gerçek ve tüzel kişilere ortaklık hakkı tanımasıyla sahip olma hakkı sağlayan, değişken faizli tahvil niteliği taşıyan senetlerdir. 2) 1 yıldan az vadeli iç borçlanma senedi. 3) 1 yıldan uzun vadeli iç borçlanma senedi. 4)KİT’lerden (Türkiye Petrolleri, Devlet Malzeme Ofisi, Kıyı Emniyeti Genel Müdürlüğü, DHMİ) bütçeye aktarılan hasılat paylarına endekslenen, asgari kupon ödemesi garantili senetlerdir.",
+    "options": [
+      "I-2, II-3, III-4, IV-1",
+      "I-3, II-2, III-1, IV-4",
+      "I-4, II-3, III-2, IV-1",
+      "I-2, II-4, III-3, IV-1",
+      "I-1, II-2, III-1, IV-4"
+    ],
+    "answer": 0
+  },
+  {
+    "id": 252,
+    "text": "“Devletin cari yıl bütçe kanununa göre çıkardığı, bütçe açıklarının finansmanı amacıyla çıkardıkları borçlanma senetleridir. SGMK’lar içinde en geniş yer kaplayan borçlanma araçlarından birisidir.” tanımı hangi kavrama aittir?",
+    "options": ["Eurobondlar", "Hazine Bonoları", "Devlet İç Borçlanma Senetleri (DİBS)", "Gelir Ortaklığı Senetleri", "Özel Sektör Tahvilleri"],
+    "answer": 2
+  },
+  {
+    "id": 253,
+    "text": "Tahvil getirisini belirleyen en önemli iki unsur aşağıdakilerden hangisidir?",
+    "options": [
+      "Vadesi – Nominal Değeri",
+      "Kupon Ödemesi – İhraççı Kuruluşun Ünvanı",
+      "İtfa Tarihi – Vergi Oranı",
+      "Likiditesi – Sahip Olduğu Risk",
+      "İhraç Şekli – Döviz Cinsi"
+    ],
+    "answer": 3
+  }
+
 
 ];
 
@@ -2940,7 +3125,7 @@ const CATEGORIES = [
     ids:[...rng(201,231)] },
 
   { key:'genel', label:'Genel Bankacılık ve Halkbank', type:'ids',
-    ids:[232,233,234] },
+    ids:[232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253] },
 ];
 
 /* ====== DURUM ====== */
@@ -3238,4 +3423,3 @@ function finalize(){
 </script>
 </body>
 </html>
-
