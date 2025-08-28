@@ -5,11 +5,42 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Uzmanlık Sınavı Simülasyonu</title>
   <style>
-    :root{
-      --border:#ddd; --muted:#666; --ok:#16a34a; --oktext:#065f46; --bad:#b91c1c; --badtext:#7f1d1d;
-      --bg:#fff; --tile:#eef2ff; --warn:#f59e0b;
-    }
-    body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:960px;margin:24px auto;padding:0 16px;background:#fafafa;color:#111}
+/* LIGHT */
+:root{
+  --page:#fafafa; --bg:#fff; --tile:#fff;
+  --border:#e5e7eb; --muted:#6b7280; --text:#111;
+
+  /* doğru/yanlış */
+  --yellow:#facc15;
+  --okbg:#c6efce;
+  --okborder:#facc15;
+  --oktext:#000;
+
+  --badbg:#ffc7ce;
+  --badbgSoft:#ffe3e7;
+  --badborder:#ffc7ce;
+  --badtext:#000;
+}
+
+/* DARK */
+:root[data-theme="dark"]{
+  --page:#0b1120; --bg:#0f172a; --tile:#111827;
+  --border:#334155; --muted:#cbd5e1; --text:#d0701d;
+
+  /* doğru/yanlış */
+  --yellow:#eab308;
+  --okbg:#14532d;
+  --okborder:#eab308;
+  --oktext:#e7f8ee;
+
+  --badbg:#7f1d1d;
+  --badbgSoft:#3f0a0a;
+  --badborder:#ef4444;
+  --badtext:#fee2e2;
+}
+
+
+    body{font-family:system-ui,Segoe UI,Arial,sans-serif;max-width:960px;margin:24px auto;padding:0 16px;background:var(--page);color:var(--text);}
     h1{margin:0 0 12px 0}
     .row{margin:10px 0}
     .card{border:1px solid var(--border);border-radius:12px;padding:20px;margin:16px 0;background:var(--bg)}
@@ -56,10 +87,29 @@
     .cbtn.active{background:#ecfeff;border-color:#a5f3fc}
     .cmeta{font-size:12px;color:var(--muted);margin-top:6px}
 
-    /* Doğru Cevabı Göster */
-    .opt-correct{background:#e7f8ee;border-color:var(--ok);color:var(--oktext);font-weight:bold}
-    .opt-wrong{background:#fde8e8;border-color:var(--bad);color:var(--badtext);font-weight:bold}
-    .opt-fadeWrong{background:#fff5f5;border-color:#fecaca;color:#9f1239;font-weight:bold}
+/* Doğru Cevabı Göster */
+.opt-correct{
+  background:var(--okbg) !important;
+  border:3px solid var(--okborder) !important;
+  color:var(--oktext) !important;
+  font-weight:700;
+}
+.opt-wrong{
+  background:var(--badbg) !important;
+  border:1px solid var(--badborder) !important;
+  color:var(--badtext) !important;
+  font-weight:700;
+}
+.opt-fadeWrong{
+  background:var(--badbgSoft) !important;
+  border:1px solid var(--badborder) !important;
+  color:var(--badtext) !important;
+  font-weight:700;
+}
+
+
+
+
 
     /* Sonuç/Review */
     .stats{display:flex;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
@@ -84,7 +134,8 @@
     <div class="context badge">Konu: <strong id="ctxCat">Tüm Sorular</strong></div>
     <div class="spacer"></div>
     <button id="openCat" class="badge">Konu Seç</button>
-    <button id="openMap" class="badge mapBtn">Soru Haritası</button>
+    <button id="openMap" class="badge mapBtn">Soru Haritası</button> <button id="toggleTheme" class="badge" title="Tema">🌙</button>
+
   </div>
 
   <div class="progress"><div class="bar" id="bar"></div></div>
@@ -3160,6 +3211,28 @@ const catWrap  = document.getElementById('catWrap');
 const catList  = document.getElementById('catList');
 const openCat  = document.getElementById('openCat');
 const closeCat = document.getElementById('closeCat');
+/* Tema: ilk yükleme + toggle */
+const themeBtn = document.getElementById('toggleTheme');
+
+(function initTheme(){
+  const saved = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const initial = saved || (prefersDark ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', initial);
+  updateThemeIcon();
+})();
+
+themeBtn && (themeBtn.onclick = () => {
+  const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', cur);
+  localStorage.setItem('theme', cur);
+  updateThemeIcon();
+});
+
+function updateThemeIcon(){
+  if(!themeBtn) return;
+  themeBtn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+}
 
 /* ====== SAYFADAN AYRILMA UYARISI ====== */
 window.addEventListener('beforeunload', (e)=>{
@@ -3423,6 +3496,3 @@ function finalize(){
 </script>
 </body>
 </html>
-
-
-
